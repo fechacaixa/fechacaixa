@@ -213,6 +213,17 @@
   .gate-submit-btn .gs-icon{width:18px;height:18px;flex:0 0 auto;}
   .gate-submit-btn .gs-icon svg{width:100%;height:100%;}
 
+  .google-btn{background:#FFFFFF;color:#1F1F1F;border:1px solid #DADCE0;}
+  .google-btn:hover:not(:disabled){background:#F5F5F5;}
+  .google-btn .g-icon{width:19px;height:19px;flex:0 0 auto;}
+  .google-btn .g-icon svg{width:100%;height:100%;display:block;}
+  .gate-hint-row{
+    display:flex;align-items:flex-start;gap:8px;margin-top:14px;
+    font-size:.78rem;color:var(--muted);line-height:1.4;text-align:left;
+  }
+  .gate-hint-row svg{width:15px;height:15px;flex:0 0 auto;color:var(--gold);margin-top:1px;}
+  .gate-fallback-row{display:flex;justify-content:center;margin-top:16px;}
+
   .gate-divider-row{display:flex;align-items:center;gap:12px;margin-top:22px;}
   .gate-divider-line{flex:1;height:1px;background:var(--line);}
   .gate-link-btn{
@@ -915,21 +926,42 @@
       </div>
 
       <div id="painelAdmin" role="tabpanel" hidden>
-        <p class="gate-sub">Entre com seu usuário e senha.</p>
-        <div class="field gate-field-icon">
-          <label for="gateUser" class="sr-only">Usuário</label>
-          <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
-          <input type="text" id="gateUser" class="gi-input" autocomplete="off" maxlength="40" placeholder="Usuário" />
+        <div id="painelAdminGoogle">
+          <p class="gate-sub">Entre com sua conta Google autorizada.</p>
+          <button type="button" id="googleSignInBtn" class="btn google-btn gate-submit-btn">
+            <span class="g-icon">
+              <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.3 2.7l6-6C33.9 6.5 29.2 4.5 24 4.5 13.5 4.5 5 13 5 23.5S13.5 42.5 24 42.5 43 34 43 23.5c0-1.3-.1-2.7-.4-3z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13.5 24 13.5c2.8 0 5.3 1 7.3 2.7l6-6C33.9 6.5 29.2 4.5 24 4.5c-7.7 0-14.4 4.4-17.7 10.2z"/><path fill="#4CAF50" d="M24 42.5c5.1 0 9.7-2 13.1-5.2l-6.1-5.1c-2 1.4-4.5 2.3-7 2.3-5.2 0-9.6-3.5-11.2-8.2l-6.5 5C9.5 38 16.2 42.5 24 42.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.7l6.1 5.1C39.9 36.7 43 30.8 43 23.5c0-1.3-.1-2.7-.4-3z"/></svg>
+            </span>
+            <span>Continuar com Google</span>
+          </button>
+          <div class="gate-hint-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Só e-mails cadastrados como administrador entram</span>
+          </div>
+          <div class="gate-fallback-row">
+            <button type="button" id="toggleLegacyAdminLogin" class="gate-link-btn">Entrar com usuário e senha</button>
+          </div>
         </div>
-        <div class="field gate-field-icon">
-          <label for="gatePass" class="sr-only">Senha</label>
-          <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
-          <input type="password" id="gatePass" class="gi-input" autocomplete="off" maxlength="100" placeholder="Senha" />
+        <div id="painelAdminLegacy" hidden>
+          <p class="gate-sub">Entre com seu usuário e senha.</p>
+          <div class="field gate-field-icon">
+            <label for="gateUser" class="sr-only">Usuário</label>
+            <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
+            <input type="text" id="gateUser" class="gi-input" autocomplete="off" maxlength="40" placeholder="Usuário" />
+          </div>
+          <div class="field gate-field-icon">
+            <label for="gatePass" class="sr-only">Senha</label>
+            <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+            <input type="password" id="gatePass" class="gi-input" autocomplete="off" maxlength="100" placeholder="Senha" />
+          </div>
+          <button type="button" id="gateSubmit" class="btn primary gate-submit-btn">
+            <span class="gs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
+            <span>Entrar</span>
+          </button>
+          <div class="gate-fallback-row">
+            <button type="button" id="toggleGoogleAdminLogin" class="gate-link-btn">Voltar pro login com Google</button>
+          </div>
         </div>
-        <button type="button" id="gateSubmit" class="btn primary gate-submit-btn">
-          <span class="gs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
-          <span>Entrar</span>
-        </button>
       </div>
     </div>
   </div>
@@ -1607,6 +1639,93 @@ function appMain(){
     authedUser = null;
   }
 
+  // Login do Administrador via Google — pensado como caminho principal
+  // (ver #painelAdminGoogle), com o usuário/senha de sempre guardado como
+  // plano B em #painelAdminLegacy (ver toggleLegacyAdminLogin). A pessoa
+  // continua sendo a MESMA conta de state.usuarios (mesmo id, mesmas
+  // permissões) — só muda o jeito de provar quem é: em vez de conferir uma
+  // senha, confere se o e-mail que voltou do Google bate com o campo
+  // googleEmail cadastrado nessa conta (ver buildUsuarioFormFields). Conta
+  // pro mesmo log de segurança e pro mesmo bloqueio por tentativas do
+  // usuário correspondente, quando dá pra identificar um.
+  async function attemptGoogleAdminLogin(){
+    var btn = document.getElementById('googleSignInBtn');
+    if (!window.firebase || !window.firebase.auth){
+      showBanner('Login com Google não está disponível agora.');
+      return;
+    }
+    if (btn) btn.disabled = true;
+    var ipPromise = fetchClientIpBestEffort();
+    var agoraIso = new Date().toISOString();
+    try{
+      var provider = new window.firebase.auth.GoogleAuthProvider();
+      var result = await window.firebase.auth().signInWithPopup(provider);
+      var email = String((result.user && result.user.email) || '').trim().toLowerCase();
+      var nomeGoogle = (result.user && result.user.displayName) || email;
+      var u = (state.usuarios || []).find(function(x){
+        return x.perfil === 'admin' && x.googleEmail && String(x.googleEmail).trim().toLowerCase() === email;
+      });
+      // Mesma proteção contra força bruta do login por senha — se a conta
+      // já estiver temporariamente bloqueada (e não for o único admin
+      // ativo), o login por Google também não passa.
+      if (u && efetivamenteBloqueado(u) && !souUnicoAdminAtivo(u)){
+        var horaExpira = horaCurta(bloqueioExpiraEm(u));
+        showBanner('Conta temporariamente bloqueada por excesso de tentativas.' + (horaExpira ? ' Tente novamente às ' + horaExpira + '.' : ''));
+        await window.firebase.auth().signOut();
+        try{ await window.firebase.auth().signInAnonymously(); }catch(e){}
+        return;
+      }
+      if (!u || u.ativo === false){
+        // E-mail não cadastrado (ou conta desativada): volta pra
+        // autenticação anônima, senão o app fica sem token válido pro
+        // Firestore até a página recarregar.
+        await window.firebase.auth().signOut();
+        try{ await window.firebase.auth().signInAnonymously(); }catch(e){}
+        showBanner('Esse e-mail Google não está autorizado como administrador. Peça pra outro administrador cadastrar em Usuários.');
+        var logIdX = makeLogId();
+        persist(function(base){
+          var s = JSON.parse(JSON.stringify(base));
+          s.securityLogs = appendSecurityLog(s.securityLogs, {
+            id: logIdX, usuarioId: (u && u.id) || null, login: email, nome: nomeGoogle,
+            evento: 'google_nao_autorizado', timestamp: agoraIso, ip: null, tentativas: 0
+          });
+          return s;
+        });
+        patchSecurityLogIp(logIdX, ipPromise);
+        return;
+      }
+      authedUser = u;
+      document.getElementById('banner').hidden = true;
+      var logId3 = makeLogId();
+      persist(function(base){
+        var s = JSON.parse(JSON.stringify(base));
+        s.usuarios = (s.usuarios || []).map(function(x){
+          return x.id === u.id ? Object.assign({}, x, {ultimoAcesso: agoraIso, tentativasLogin: 0}) : x;
+        });
+        s.securityLogs = appendSecurityLog(s.securityLogs, {
+          id: logId3, usuarioId: u.id, login: u.login, nome: u.nome, evento: 'login_sucesso_google',
+          timestamp: agoraIso, ip: null, tentativas: 0
+        });
+        return s;
+      });
+      patchSecurityLogIp(logId3, ipPromise);
+      managerUnlocked = true;
+      readOnlyMode = false;
+      setAuthSession({tipo:'usuario', usuario: u.login});
+      stage = 'manager';
+      managerTab = 'dashboard';
+      applyManagerTabVisibility();
+      applyStageVisibility();
+      render();
+    }catch(err){
+      if (!err || (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request')){
+        showBanner('Não foi possível entrar com Google agora. Tente de novo.');
+      }
+    }finally{
+      if (btn) btn.disabled = false;
+    }
+  }
+
   // Tela "Fechar caixa de uma loja": lista todas as lojas cadastradas pra
   // escolher, e limpa a senha/nome digitados da vez anterior (troca de
   // turno no mesmo aparelho não deve herdar o que a pessoa de antes digitou).
@@ -1794,6 +1913,16 @@ function appMain(){
     readOnlyMode = false;
     authedUser = null;
     setAuthSession(null);
+    // Se essa sessão tinha entrado pelo Google, volta pra autenticação
+    // anônima (a mesma usada por Loja/sincronização) — sem isso, o app
+    // ficaria sem um token válido pro Firestore até a página recarregar.
+    try{
+      if (window.firebase && window.firebase.auth && window.firebase.auth().currentUser && !window.firebase.auth().currentUser.isAnonymous){
+        window.firebase.auth().signOut().then(function(){
+          return window.firebase.auth().signInAnonymously();
+        }).catch(function(){});
+      }
+    }catch(e){}
     goToLoginScreen();
   }
 
@@ -3356,7 +3485,7 @@ function appMain(){
         ((u.tentativasLogin || 0) > 0 ? '<span class="seg-tentativas">'+u.tentativasLogin+' tentativa'+(u.tentativasLogin===1?'':'s')+'</span>' : '<span class="seg-ok">—</span>');
       return '<tr>' +
         '<td><strong>'+esc(u.nome || u.login)+'</strong></td>' +
-        '<td>'+esc(u.login)+'</td>' +
+        '<td>'+esc(u.login)+(u.googleEmail?'<div class="admin-row-sub">🔵 '+esc(u.googleEmail)+'</div>':'')+'</td>' +
         '<td><span class="perfil-badge perfil-'+esc(perfil)+'">'+esc(perfilLabel(perfil))+'</span></td>' +
         '<td><span class="status-pill '+(ativo?'ativo':'bloqueado')+'">'+(ativo?'Ativo':'Bloqueado')+'</span></td>' +
         '<td>'+segurancaTxt+'</td>' +
@@ -3579,7 +3708,24 @@ function appMain(){
         '<option value="consulta"'+(perfilAtual==='consulta'?' selected':'')+'>Consulta (somente visualização)</option>' +
         '<option value="admin"'+(perfilAtual==='admin'?' selected':'')+'>Administrador (acesso total)</option>' +
       '</select></div>' +
+      '<div class="field" id="mUserGoogleEmailRow" '+(perfilAtual==='admin'?'':'hidden')+'>' +
+        '<label for="mUserGoogleEmail">E-mail Google (opcional — permite entrar sem senha)</label>' +
+        '<input type="email" id="mUserGoogleEmail" autocomplete="off" maxlength="120" placeholder="nome@gmail.com" value="'+esc(u&&u.googleEmail?u.googleEmail:'')+'" />' +
+      '</div>' +
       '<label class="check-item" style="margin-top:4px;"><input type="checkbox" id="mUserAtivo" '+(ativoAtual?'checked':'')+' /> Ativo</label>';
+  }
+
+  // Alterna a visibilidade do campo "E-mail Google" conforme o Perfil
+  // escolhido no formulário de Novo/Editar usuário — só faz sentido pra
+  // Administrador (ver attemptGoogleAdminLogin); Consulta continua só com
+  // usuário/senha.
+  function wireUsuarioFormPerfilToggle(box){
+    var perfilSel = box.querySelector('#mUserPerfil');
+    var row = box.querySelector('#mUserGoogleEmailRow');
+    if (!perfilSel || !row) return;
+    perfilSel.addEventListener('change', function(){
+      row.hidden = perfilSel.value !== 'admin';
+    });
   }
 
   function openAddUserModal(){
@@ -3590,6 +3736,7 @@ function appMain(){
         '<button type="button" class="btn primary small" id="modalConfirm">Salvar</button>' +
       '</div>',
       function(box){
+        wireUsuarioFormPerfilToggle(box);
         box.querySelector('#modalCancel').addEventListener('click', closeModal);
         box.querySelector('#modalConfirm').addEventListener('click', async function(){
           var nome = box.querySelector('#mUserNome').value.trim();
@@ -3597,8 +3744,15 @@ function appMain(){
           var senha = box.querySelector('#mUserSenha').value;
           var perfil = box.querySelector('#mUserPerfil').value;
           var ativo = box.querySelector('#mUserAtivo').checked;
+          var googleEmailRaw = box.querySelector('#mUserGoogleEmail').value.trim().toLowerCase();
           if (!nome || !login || !senha){ showBanner('Preencha nome, login e senha.'); return; }
           if (findUsuario(login)){ showBanner('Já existe um usuário com esse login.'); return; }
+          if (googleEmailRaw && perfil === 'admin'){
+            if (googleEmailRaw.indexOf('@') === -1){ showBanner('E-mail Google inválido.'); return; }
+            var jaUsado = (state.usuarios || []).some(function(x){ return x.googleEmail && x.googleEmail.toLowerCase() === googleEmailRaw; });
+            if (jaUsado){ showBanner('Já existe um administrador com esse e-mail Google.'); return; }
+          }
+          var googleEmail = (perfil === 'admin' && googleEmailRaw) ? googleEmailRaw : null;
           var novaSenhaHash = await hashSenhaNova(senha);
           var newUserId = usuarioId();
           var criadoEmNow = new Date().toISOString();
@@ -3607,7 +3761,7 @@ function appMain(){
             var s = JSON.parse(JSON.stringify(base));
             if (!s.usuarios) s.usuarios = [];
             s.usuarios.push(Object.assign({
-              id: newUserId, nome: nome, login: login, perfil: perfil, ativo: ativo,
+              id: newUserId, nome: nome, login: login, perfil: perfil, ativo: ativo, googleEmail: googleEmail,
               lojasPermitidas: [],
               ultimoAcesso: null, criadoEm: criadoEmNow,
               tentativasLogin: 0, bloqueado: false, bloqueadoEm: null
@@ -3629,21 +3783,29 @@ function appMain(){
         '<button type="button" class="btn primary small" id="modalConfirm">Salvar</button>' +
       '</div>',
       function(box){
+        wireUsuarioFormPerfilToggle(box);
         box.querySelector('#modalCancel').addEventListener('click', closeModal);
         box.querySelector('#modalConfirm').addEventListener('click', async function(){
           var nome = box.querySelector('#mUserNome').value.trim();
           var login = box.querySelector('#mUserLogin').value.trim().toLowerCase();
           var perfil = box.querySelector('#mUserPerfil').value;
           var ativo = box.querySelector('#mUserAtivo').checked;
+          var googleEmailRaw = box.querySelector('#mUserGoogleEmail').value.trim().toLowerCase();
           if (!nome || !login){ showBanner('Preencha nome e login.'); return; }
           var outro = findUsuario(login);
           if (outro && outro.id !== userId){ showBanner('Já existe outro usuário com esse login.'); return; }
+          if (googleEmailRaw && perfil === 'admin'){
+            if (googleEmailRaw.indexOf('@') === -1){ showBanner('E-mail Google inválido.'); return; }
+            var jaUsado = (state.usuarios || []).some(function(x){ return x.id !== userId && x.googleEmail && x.googleEmail.toLowerCase() === googleEmailRaw; });
+            if (jaUsado){ showBanner('Já existe outro administrador com esse e-mail Google.'); return; }
+          }
+          var googleEmail = (perfil === 'admin' && googleEmailRaw) ? googleEmailRaw : null;
           closeModal();
           await persist(function(base){
             var s = JSON.parse(JSON.stringify(base));
             s.usuarios = (s.usuarios || []).map(function(x){
               if (x.id !== userId) return x;
-              return Object.assign({}, x, { nome: nome, login: login, perfil: perfil, ativo: ativo, lojasPermitidas: [] });
+              return Object.assign({}, x, { nome: nome, login: login, perfil: perfil, ativo: ativo, googleEmail: googleEmail, lojasPermitidas: [] });
             });
             return s;
           });
@@ -4514,6 +4676,24 @@ function appMain(){
     });
     document.getElementById('gatePass').addEventListener('keydown', function(e){
       if (e.key === 'Enter'){ e.preventDefault(); attemptLogin(); }
+    });
+    // Login do Administrador via Google (caminho principal — ver
+    // attemptGoogleAdminLogin) e a alternância pro usuário/senha de sempre,
+    // guardado como plano B em #painelAdminLegacy.
+    document.getElementById('googleSignInBtn').addEventListener('click', attemptGoogleAdminLogin);
+    document.getElementById('toggleLegacyAdminLogin').addEventListener('click', function(){
+      document.getElementById('painelAdminGoogle').hidden = true;
+      document.getElementById('painelAdminLegacy').hidden = false;
+      document.getElementById('banner').hidden = true;
+      var f = document.getElementById('gateUser');
+      if (f) setTimeout(function(){ f.focus(); }, 30);
+    });
+    document.getElementById('toggleGoogleAdminLogin').addEventListener('click', function(){
+      document.getElementById('painelAdminLegacy').hidden = true;
+      document.getElementById('painelAdminGoogle').hidden = false;
+      document.getElementById('banner').hidden = true;
+      document.getElementById('gateUser').value = '';
+      document.getElementById('gatePass').value = '';
     });
     // Abas da tela inicial: Loja / Administrador (Variante A).
     document.getElementById('loginTabLoja').addEventListener('click', function(){ showLoginTab('loja'); });
