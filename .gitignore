@@ -1,0 +1,23 @@
+# Nunca versionar segredos ou configuração local.
+.env
+.env.*
+*.local
+*.key
+*.pem
+service-account*.json
+firebase-debug.log
+firebase-debug.*.log
+.firebase/
+
+# Arquivos de sistema/editor.
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Caso algum dia entre alguma ferramenta de build/lint (npm, etc).
+node_modules/
+dist/
+build/
+npm-debug.log*

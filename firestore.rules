@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Só o documento único usado pelo Fechamento de Caixa pode ser lido/escrito,
+    // e só por quem tiver um token de autenticação válido do Firebase — o
+    // app faz login anônimo automático (silencioso, sem pedir nada da
+    // pessoa) assim que carrega, então isso não muda a experiência de
+    // ninguém. O que muda é que um script qualquer, com só o apiKey do
+    // projeto (visível no código-fonte, já que este app não tem servidor
+    // por trás), não consegue mais ler nem escrever direto no banco sem
+    // nunca passar pelo app de verdade.
+    //
+    // A proteção "de verdade" (quem pode ver o quê, quem pode editar o
+    // quê) continua sendo a senha de cada loja/administrador dentro do
+    // próprio app — isso aqui é uma camada a mais, não substitui aquela.
+    match /fechamento_caixa/{docId} {
+      allow read, write: if request.auth != null;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
