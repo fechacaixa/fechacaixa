@@ -13,8 +13,13 @@
   único, então script-src precisa de 'unsafe-inline') — a defesa real
   contra isso é nunca inserir texto digitado por alguém sem escapar (ver
   a função esc()), o que já é feito em todo o app.
+
+  apis.google.com (script-src/connect-src) e o frame-src (authDomain do
+  Firebase + accounts.google.com) foram adicionados pro "Continuar com
+  Google" do Administrador — é o helper que o Firebase Auth usa por
+  baixo dos panos pro signInWithPopup (ver attemptGoogleAdminLogin).
 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://firestore.googleapis.com https://firebaseinstallations.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.ipify.org; base-uri 'none'; form-action 'none'; object-src 'none';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://*.googleusercontent.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://firestore.googleapis.com https://firebaseinstallations.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.ipify.org https://apis.google.com; frame-src https://fechacaixa-de698.firebaseapp.com https://accounts.google.com https://apis.google.com; base-uri 'none'; form-action 'none'; object-src 'none';" />
 <!-- frame-ancestors (protege contra clickjacking) não tem efeito quando o
      CSP vem por <meta> — só funciona como cabeçalho HTTP de verdade, que o
      GitHub Pages não permite configurar. Ver SECURITY_REPORT.md pra uma
@@ -213,7 +218,7 @@
   .gate-submit-btn .gs-icon{width:18px;height:18px;flex:0 0 auto;}
   .gate-submit-btn .gs-icon svg{width:100%;height:100%;}
 
-  .google-btn{background:#FFFFFF;color:#1F1F1F;border:1px solid #DADCE0;}
+  .google-btn{width:100%;background:#FFFFFF;color:#1F1F1F;border:1px solid #DADCE0;}
   .google-btn:hover:not(:disabled){background:#F5F5F5;}
   .google-btn .g-icon{width:19px;height:19px;flex:0 0 auto;}
   .google-btn .g-icon svg{width:100%;height:100%;display:block;}
