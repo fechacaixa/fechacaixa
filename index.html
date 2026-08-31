@@ -105,8 +105,6 @@
   }
   .site-footer img{height:22px;width:auto;opacity:.9;}
   .site-footer .love{color:var(--accent);font-weight:600;}
-  .report-filter-panel .panel-head{margin-bottom:10px;}
-  .report-filter-controls{display:flex;gap:10px;flex-wrap:wrap;}
   .access-row{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%;margin-top:18px;padding-top:16px;border-top:1px solid var(--sb-divider, var(--line));box-sizing:border-box;}
   .user-badge{
     display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;
@@ -239,10 +237,11 @@
   .gate-link-btn:hover{color:var(--ink-soft);}
   .gate-link-btn .gl-icon,.gate-link-btn .gl-chevron{width:14px;height:14px;flex:0 0 auto;color:var(--gold);}
   .gate-link-btn .gl-icon svg,.gate-link-btn .gl-chevron svg{width:100%;height:100%;}
-  .field-inline{display:flex;flex-direction:column;gap:3px;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+  .report-filter-controls{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .field-inline{display:flex;flex-direction:row;align-items:center;gap:5px;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
   .field-inline select, .field-inline input[type="date"]{
-    font-family:inherit;font-size:.86rem;color:var(--ink);background:var(--surface);
-    border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:130px;
+    font-family:inherit;font-size:.76rem;color:var(--ink);background:var(--surface);
+    border:1px solid var(--line);border-radius:6px;padding:4px 6px;min-width:92px;
   }
   .period-btn{
     padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);
@@ -413,6 +412,7 @@
   .rank-status.fechado{color:var(--positive);}
   .rank-status.divergencia{color:var(--negative);}
   .rank-status.pendente{color:var(--muted);}
+  .rank-status-warn{color:var(--negative);}
   .rank-value-cell{font-size:.78rem;font-weight:600;color:var(--ink-soft);text-align:right;white-space:nowrap;}
   .rank-pct-cell{font-size:.74rem;color:var(--muted);text-align:right;white-space:nowrap;}
   .rank-progress-cell{min-width:120px;}
@@ -512,13 +512,39 @@
 
 
   .report-cover{
-    display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
     padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line);
   }
+  .report-cover-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
   .report-cover-title{display:flex;align-items:center;gap:12px;}
   .report-cover-icon{font-size:1.6rem;line-height:1;}
   .report-cover-title h2{font-size:1.15rem;margin:0;}
   .report-cover-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:.74rem;color:var(--muted);text-align:right;}
+
+  /* Banner de boas-vindas no topo do Dashboard — saudação com nome de quem
+     está logado no admin + data de hoje. Tarja sólida na cor da marca
+     (em vez do azul genérico de referências de outros sistemas). */
+  .welcome-banner{
+    position:relative;overflow:hidden;
+    background:linear-gradient(120deg, var(--accent) 0%, #8f2019 100%);
+    border:none;
+  }
+  .welcome-banner-decor{
+    position:absolute;top:-140px;right:-100px;width:320px;height:320px;border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.25);pointer-events:none;
+  }
+  .welcome-banner-decor2{
+    position:absolute;bottom:-160px;right:60px;width:220px;height:220px;border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.16);pointer-events:none;
+  }
+  .welcome-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;position:relative;}
+  .welcome-chip{
+    display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;
+    padding:5px 12px;font-size:.72rem;color:#F6E9E7;
+  }
+  .welcome-banner h1{font-family:'IBM Plex Sans',sans-serif;font-size:1.3rem;margin:2px 0 6px;color:#fff;position:relative;font-weight:700;}
+  .welcome-banner p{font-size:.86rem;color:rgba(255,255,255,.82);margin:0;max-width:560px;position:relative;}
   .report-kpi-trend{display:block;font-size:.68rem;margin-top:4px;font-weight:600;}
   .report-kpi-trend.good{color:var(--positive);}
   .report-kpi-trend.bad{color:var(--negative);}
@@ -855,6 +881,7 @@
   }
   .entry-card.st-positive::before{background:var(--positive);}
   .entry-card.st-negative::before{background:var(--negative);}
+  .entry-card.st-ok::before{background:var(--positive);}
   .entry-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
   .entry-date{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1rem;}
   .entry-meta{font-size:.76rem;color:var(--muted);}
@@ -869,7 +896,7 @@
     display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;
     font-size:.74rem;font-family:'IBM Plex Mono',monospace;font-weight:600;
   }
-  .pill.ok{background:var(--surface-2);color:var(--muted);}
+  .pill.ok{background:var(--positive-bg);color:var(--positive);}
   .pill.positive{background:var(--positive-bg);color:var(--positive);}
   .pill.negative{background:var(--negative-bg);color:var(--negative);}
   .entry-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
@@ -1154,6 +1181,7 @@
     </div>
     <div class="manager-content">
       <div class="manager-tab" data-tab-content="dashboard">
+        <section class="panel welcome-banner" id="welcomeBanner"></section>
         <section class="panel" id="storeStatusPanel"></section>
         <section class="stats" id="stats"></section>
         <section class="panel" id="breakdownPanel"></section>
@@ -1161,9 +1189,13 @@
       </div>
       <div class="manager-tab" data-tab-content="lancamentos">
         <section class="panel">
-          <div class="panel-head">
-            <h2>Lançamentos</h2>
-            <button type="button" id="exportBtn" class="btn ghost small">Exportar CSV</button>
+          <div class="report-cover">
+            <div class="report-cover-title"><span class="report-cover-icon">📋</span><div>
+              <h2>Lançamentos</h2>
+            </div></div>
+            <div class="report-cover-right" id="lancFilterRight">
+              <button type="button" id="exportBtn" class="btn ghost small">Exportar CSV</button>
+            </div>
           </div>
           <div class="entries" id="entriesList"></div>
         </section>
@@ -1173,20 +1205,6 @@
         <section class="panel" id="motivosPanel"></section>
       </div>
       <div class="manager-tab" data-tab-content="relatorios">
-        <section class="panel report-filter-panel">
-          <div class="panel-head"><h2>Filtro do relatório</h2></div>
-          <div class="report-filter-controls">
-            <label class="field-inline">Loja
-              <select id="filterLoja"></select>
-            </label>
-            <label class="field-inline">De
-              <input type="date" id="filterStart" />
-            </label>
-            <label class="field-inline">Até
-              <input type="date" id="filterEnd" />
-            </label>
-          </div>
-        </section>
         <section class="panel" id="reportsPanel"></section>
       </div>
       <div class="manager-tab" data-tab-content="exportacao">
@@ -2304,14 +2322,37 @@ function appMain(){
     });
   }
 
-  function populateSelects(){
-    var filterLojaSel = document.getElementById('filterLoja');
-    var lojaOpts = ['<option value="__all__">Todas as lojas</option>'].concat(
-      state.lojas.map(function(l){ return '<option value="'+esc(l)+'">'+esc(l)+'</option>'; })
-    );
-    filterLojaSel.innerHTML = lojaOpts.join('');
-    filterLojaSel.value = filterLoja;
+  // Gera o bloco Loja/De/Até (mesmo modelo usado no cabeçalho do Relatório
+  // do período) pra ser reaproveitado em outros cabeçalhos — Lançamentos e
+  // Divergências. idPrefix evita ids repetidos na página (cada aba tem o
+  // seu próprio conjunto de campos, todos refletindo o mesmo filterLoja/
+  // filterStart/filterEnd compartilhado).
+  function filterControlsHtml(idPrefix){
+    var opts = ['<option value="__all__"'+(filterLoja==="__all__"?' selected':'')+'>Todas as lojas</option>'].concat(
+      state.lojas.map(function(l){ return '<option value="'+esc(l)+'"'+(filterLoja===l?' selected':'')+'>'+esc(l)+'</option>'; })
+    ).join('');
+    return '<div class="report-filter-controls">' +
+      '<label class="field-inline">Loja<select id="'+idPrefix+'Loja">'+opts+'</select></label>' +
+      '<label class="field-inline">De<input type="date" id="'+idPrefix+'Start" value="'+esc(filterStart)+'" /></label>' +
+      '<label class="field-inline">Até<input type="date" id="'+idPrefix+'End" value="'+esc(filterEnd)+'" /></label>' +
+    '</div>';
+  }
+  // Liga os três campos gerados por filterControlsHtml(idPrefix) ao estado
+  // compartilhado — troca em qualquer aba re-renderiza tudo (render()), o
+  // que atualiza os outros cabeçalhos também.
+  function wireFilterControls(container, idPrefix){
+    var lojaEl = container.querySelector('#'+idPrefix+'Loja');
+    if (lojaEl) lojaEl.addEventListener('change', function(e){ filterLoja = e.target.value; render(); });
+    var startEl = container.querySelector('#'+idPrefix+'Start');
+    if (startEl) startEl.addEventListener('change', function(e){ applyCustomRange(e.target.value, filterEnd); });
+    var endEl = container.querySelector('#'+idPrefix+'End');
+    if (endEl) endEl.addEventListener('change', function(e){ applyCustomRange(filterStart, e.target.value); });
+  }
 
+  function populateSelects(){
+    // #filterLoja/#filterStart/#filterEnd agora nascem dentro do próprio
+    // relatório (ver renderReportsPanel) — são recriados a cada render,
+    // já com o valor certo, então não tem mais nada pra sincronizar aqui.
     syncPeriodControls();
   }
 
@@ -2530,17 +2571,19 @@ function appMain(){
   // Sistema de notificações — uma divergência não é um "alerta crítico", é
   // uma ocorrência que precisa ser revisada. Esse é o número de notificação
   // único usado em todo canto (menu lateral, KPI do dashboard, topo da tela
-  // de Divergências): quantas divergências estão com status "aberta", em
-  // TODAS as lojas e TODO o histórico — não só no período/loja filtrados no
-  // topo da tela, pra não sumir/reaparecer só porque a pessoa trocou o
-  // filtro. "justificada" não gera notificação nova e "resolvida" nunca
-  // aparece aqui. Calculado em memória a partir de state.entries (já
-  // sincronizado via onSnapshot) — nenhuma consulta nova ao Firestore.
+  // de Divergências): quantas divergências ainda NÃO foram marcadas como
+  // "resolvida" — inclui tanto "aberta" (ninguém deu motivo no fechamento)
+  // quanto "justificada" (já tem motivo, mas ainda precisa alguém bater o
+  // olho e resolver formalmente) — em TODAS as lojas e TODO o histórico,
+  // não só no período/loja filtrados no topo da tela, pra não sumir/
+  // reaparecer só porque a pessoa trocou o filtro. Só "resolvida" some
+  // daqui. Calculado em memória a partir de state.entries (já sincronizado
+  // via onSnapshot) — nenhuma consulta nova ao Firestore.
   function divergenciasPendentesResumo(){
     var count = 0, valor = 0;
     state.entries.forEach(function(e){
       var div = divergenciaOf(e);
-      if (div && div.status === 'aberta'){ count++; valor += div.valor; }
+      if (div && div.status !== 'resolvida'){ count++; valor += div.valor; }
     });
     return {count: count, valor: valor};
   }
@@ -2559,6 +2602,27 @@ function appMain(){
   // todos os fechamentos entre Data Inicial e Data Final em vez de olhar só
   // pra hoje. Sempre company-wide (ignora o filtro de loja do topo), do
   // jeito que esse painel já funcionava antes.
+  // Saudação no topo do Dashboard — nome de quem está logado no admin +
+  // data de hoje por extenso (via Intl, sem precisar de tabela de meses/
+  // dias da semana em português na mão). Só aparece com o admin
+  // desbloqueado, junto do resto do painel gerencial.
+  function renderWelcomeBanner(){
+    var wrap = document.getElementById('welcomeBanner');
+    if (!wrap) return;
+    if (!managerUnlocked){ wrap.innerHTML = ''; return; }
+    var hoje = new Date();
+    var dataFmt = hoje.toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long'});
+    dataFmt = dataFmt.charAt(0).toUpperCase() + dataFmt.slice(1);
+    wrap.innerHTML =
+      '<div class="welcome-banner-decor"></div><div class="welcome-banner-decor2"></div>' +
+      '<div class="welcome-chips">' +
+        '<span class="welcome-chip">🔒 Painel administrativo</span>' +
+        '<span class="welcome-chip">📅 '+esc(dataFmt)+'</span>' +
+      '</div>' +
+      '<h1>Bem-vindo de volta, '+esc(nomeAdminLogado())+'.</h1>' +
+      '<p>Esse é o resumo das lojas e dos fechamentos de hoje.</p>';
+  }
+
   function renderStoreStatus(){
     var wrap = document.getElementById('storeStatusPanel');
     if (!wrap) return;
@@ -2702,8 +2766,8 @@ function appMain(){
         var m2 = metrics(e);
         var divergente = Math.abs(m2.diffVendas) > TOL || Math.abs(m2.diffCaixa) > TOL;
         statusHtml = divergente ?
-          '<span class="rank-status divergencia">✓ Fechado ⚠</span>' :
-          '<span class="rank-status fechado">Fechado</span>';
+          '<span class="rank-status fechado">✓ Fechado <span class="rank-status-warn">⚠</span></span>' :
+          '<span class="rank-status fechado">✓ Fechado</span>';
       }
       var posCls = idx < 3 ? posClasses[idx] : '';
       var posHtml = idx < 3 ? '<span class="rank-medal">'+medals[idx]+'</span>' : '<span class="rank-pos">'+(idx+1)+'º</span>';
@@ -3070,31 +3134,24 @@ function appMain(){
       '<div class="diverg-grid">'+cards+'</div>' :
       '<div class="empty-state">Nenhuma divergência '+(divergStatusFilter==='todas'?'':'com esse status ')+'no período selecionado.</div>';
 
-    // "Maiores divergências" — soma por loja, do maior pro menor.
+    // "Maiores divergências" e "Divergências por loja" eram duas seções
+    // separadas mostrando o mesmo valor por loja duas vezes (uma como
+    // lista com medalha, outra como gráfico de barras) — viraram uma
+    // lista só: medalha + nome + barra + quantidade + valor, do maior
+    // pro menor.
     var porLoja = {};
     all.forEach(function(x){ porLoja[x.entry.loja] = (porLoja[x.entry.loja]||0) + x.div.valor; });
+    var contagemPorLoja = {};
+    all.forEach(function(x){ contagemPorLoja[x.entry.loja] = (contagemPorLoja[x.entry.loja]||0) + 1; });
     var rankingLojas = Object.keys(porLoja).map(function(l){ return {loja:l, valor:porLoja[l]}; })
       .sort(function(a,b){ return b.valor - a.valor; });
     var medals = ['🥇','🥈','🥉'];
-    var rankingHtml = rankingLojas.length ?
-      '<div class="dvr-list">' + rankingLojas.map(function(r, i){
-        return '<div class="dvr-row">' +
-          '<span class="rank-medal">'+(medals[i]||'')+'</span>' +
-          '<span class="rank-pos">'+(i+1)+'º</span>' +
-          '<span class="dvr-name"><strong>'+lojaLabel(r.loja)+'</strong></span>' +
-          '<span class="dvr-value">'+money(r.valor)+'</span>' +
-        '</div>';
-      }).join('') + '</div>' :
-      '<div class="empty-state">Sem divergências no período.</div>';
-
-    // "Divergências por loja" — quantidade + valor, em barras (maior valor = barra cheia).
-    var contagemPorLoja = {};
-    all.forEach(function(x){ contagemPorLoja[x.entry.loja] = (contagemPorLoja[x.entry.loja]||0) + 1; });
     var maiorValor = rankingLojas.length ? rankingLojas[0].valor : 0;
     var chartHtml = rankingLojas.length ?
-      '<div class="dvr-list">' + rankingLojas.map(function(r){
+      '<div class="dvr-list">' + rankingLojas.map(function(r, i){
         var pct = maiorValor > 0 ? (r.valor / maiorValor * 100) : 0;
         return '<div class="dvr-row">' +
+          '<span class="rank-medal">'+(medals[i]||'')+'</span>' +
           '<span class="dvr-name"><strong>'+lojaLabel(r.loja)+'</strong></span>' +
           '<span class="dvr-bar-track"><span class="rank-bar-fill" style="width:'+pct+'%"></span></span>' +
           '<span class="dvr-pct">'+(contagemPorLoja[r.loja]||0)+'×</span>' +
@@ -3115,15 +3172,21 @@ function appMain(){
       '</div>';
 
     wrap.innerHTML =
-      '<div class="panel-head"><h2>Central de auditoria financeira</h2><span class="store-status-date">'+all.length+' no período selecionado</span></div>' +
+      '<div class="report-cover">' +
+        '<div class="report-cover-title"><span class="report-cover-icon">🔎</span><div>' +
+          '<h2>Central de auditoria financeira</h2>' +
+          '<span class="store-status-date">'+all.length+' no período selecionado</span>' +
+        '</div></div>' +
+        filterControlsHtml('filterDiv') +
+      '</div>' +
       notifSummaryHtml +
       kpisHtml +
       toolbarHtml +
       gridHtml +
-      '<div class="panel-head" style="margin-top:20px;"><h2>Maiores divergências</h2></div>' +
-      rankingHtml +
       '<div class="panel-head" style="margin-top:20px;"><h2>Divergências por loja</h2></div>' +
       chartHtml;
+
+    wireFilterControls(wrap, 'filterDiv');
 
     Array.prototype.forEach.call(wrap.querySelectorAll('.btn-diverg-filter'), function(btn){
       btn.onclick = function(){ divergStatusFilter = btn.getAttribute('data-status'); renderDivergencesPanel(); };
@@ -3154,8 +3217,17 @@ function appMain(){
     state.lojas.forEach(function(l){ porLojaPeriodo[l]=0; porLojaDivergPeriodo[l]=0; porLojaAnteriorRel[l]=0; });
 
     var totVendasPeriodo = 0, totFechamentosPeriodo = 0, totDivergPeriodo = 0, qtdDivergentesPeriodo = 0;
+    // "Filtro do relatório › Loja" — quando é uma loja específica (não
+    // "Todas as lojas"), todo o relatório (KPIs, gráfico de evolução
+    // diária, resumo executivo e a tabela lá embaixo) passa a refletir só
+    // ela, em vez de sempre mostrar as 9 unidades. O gráfico "Faturamento
+    // por mês/trimestre" continua company-wide de propósito (ver comentário
+    // em buildMonthlyChartHtml) — é uma visão de tendência de longo prazo,
+    // separada do período/loja escolhidos aqui em cima.
+    var porDiaRel = {}; // data ISO -> {total, count, diverg}
 
     state.entries.forEach(function(e){
+      if (filterLoja !== "__all__" && e.loja !== filterLoja) return;
       if (e.data === today){
         var prevE = todaysByLoja[e.loja];
         if (!prevE || (e.criadoEm||'') > (prevE.criadoEm||'')) todaysByLoja[e.loja] = e;
@@ -3164,12 +3236,16 @@ function appMain(){
         porLojaPeriodo[e.loja] = (porLojaPeriodo[e.loja]||0) + num(e.vendas);
         totVendasPeriodo += num(e.vendas);
         totFechamentosPeriodo += 1;
+        if (!porDiaRel[e.data]) porDiaRel[e.data] = {total:0, count:0, diverg:0};
+        porDiaRel[e.data].total += num(e.vendas);
+        porDiaRel[e.data].count += 1;
         var m = metrics(e);
         if (Math.abs(m.diffVendas) > TOL || Math.abs(m.diffCaixa) > TOL){
           var dv = divergenceValue(m);
           porLojaDivergPeriodo[e.loja] = (porLojaDivergPeriodo[e.loja]||0) + dv;
           totDivergPeriodo += dv;
           qtdDivergentesPeriodo += 1;
+          porDiaRel[e.data].diverg += 1;
         }
       }
     });
@@ -3179,6 +3255,7 @@ function appMain(){
     var prevRangeRel = previousPeriodRange(filterStart, filterEnd);
     var totVendasAnterior = 0, totFechamentosAnterior = 0, totDivergAnterior = 0;
     state.entries.forEach(function(e){
+      if (filterLoja !== "__all__" && e.loja !== filterLoja) return;
       if (e.data >= prevRangeRel.start && e.data <= prevRangeRel.end){
         porLojaAnteriorRel[e.loja] = (porLojaAnteriorRel[e.loja]||0) + num(e.vendas);
         totVendasAnterior += num(e.vendas);
@@ -3204,7 +3281,8 @@ function appMain(){
     var varVendas = variacaoPct(totVendasPeriodo, totVendasAnterior);
     var varFechamentos = variacaoPct(totFechamentosPeriodo, totFechamentosAnterior);
     var varDiverg = variacaoPct(totDivergPeriodo, totDivergAnterior);
-    var pendentesHoje = state.lojas.filter(function(l){ return !todaysByLoja[l]; }).length;
+    var lojasEscopo = filterLoja === "__all__" ? state.lojas : [filterLoja];
+    var pendentesHoje = lojasEscopo.filter(function(l){ return !todaysByLoja[l]; }).length;
 
     // Loja líder em vendas e loja com maior divergência no período — usadas
     // só no texto do resumo executivo (os números completos estão na tabela).
@@ -3226,54 +3304,64 @@ function appMain(){
       return '<button type="button" class="period-btn report-preset-btn'+(activeQuickRange===p.key?' active':'')+'" data-range="'+p.key+'">'+p.label+'</button>';
     }).join('');
 
-    // Donut genérico (reaproveita o mesmo visual de conic-gradient já usado
-    // no ranking de faturamento) — recebe uma lista de fatias já prontas
-    // {label, value, color, displayValue} e monta o gráfico + legenda.
-    function buildDonutHtml(slices, centerLabel, centerValueHtml){
-      var total = slices.reduce(function(s,x){ return s + x.value; }, 0);
-      var acc = 0;
-      var gradientParts = slices.map(function(s){
-        var start = total > 0 ? (acc/total*100) : 0;
-        acc += s.value;
-        var end = total > 0 ? (acc/total*100) : 0;
-        return s.color+' '+start.toFixed(2)+'% '+end.toFixed(2)+'%';
-      });
-      var legendRows = slices.map(function(s){
-        return '<div class="donut-legend-row"><span class="donut-legend-dot" style="background:'+s.color+'"></span>' +
-          '<span class="donut-legend-name">'+esc(s.label)+'</span>' +
-          '<span class="donut-legend-pct tabular">'+s.displayValue+'</span></div>';
-      }).join('');
-      var bg = total > 0 ? 'conic-gradient('+gradientParts.join(',')+')' : 'var(--surface-2)';
-      return '<div class="donut-wrap">' +
-          '<div class="donut" style="background:'+bg+'">' +
-            '<div class="donut-center"><span class="dc-label">'+esc(centerLabel)+'</span><span class="dc-value tabular">'+centerValueHtml+'</span></div>' +
+    // O donut "Participação das vendas" que existia aqui (4 lojas +
+    // "Demais") foi removido — repetia o donut "Distribuição do
+    // faturamento" do Dashboard com o mesmo cálculo; a participação de
+    // cada loja continua disponível na coluna própria da tabela abaixo.
+
+    // "Evolução de vendas por dia" — mesmo gráfico de linha (pontos +
+    // rótulos) já usado no Dashboard, só que aqui construído a partir de
+    // porDiaRel (já filtrado pela loja escolhida acima, ou pela rede
+    // inteira em "Todas as lojas") — é o motivo de existir o filtro de
+    // loja nesta tela: ver a evolução de UMA loja específica no período.
+    var diasRel = [];
+    var cursorRel = filterStart;
+    var guardRel = 0;
+    while (cursorRel <= filterEnd && guardRel < 3660){ diasRel.push(cursorRel); cursorRel = isoAddDays(cursorRel, 1); guardRel++; }
+    var evoRelValues = diasRel.map(function(d){ return porDiaRel[d] ? porDiaRel[d].total : 0; });
+    var maxDiaRelEvo = evoRelValues.reduce(function(mx,v){ return Math.max(mx,v); }, 0);
+    var nDiasRel = diasRel.length;
+    var showAllLabelsRel = nDiasRel <= 10;
+    var showEveryDayRel = Math.max(1, Math.ceil(nDiasRel / 12));
+    function evoRelXPct(idx){ return nDiasRel <= 1 ? 50 : (idx / (nDiasRel - 1)) * 100; }
+    function evoRelYPct(v){ return maxDiaRelEvo > 0 ? (88 - (v / maxDiaRelEvo) * 74) : 88; }
+    var evoRelLinePoints = diasRel.map(function(d, idx){
+      return evoRelXPct(idx).toFixed(2)+','+evoRelYPct(evoRelValues[idx]).toFixed(2);
+    }).join(' ');
+    var evoRelPointsHtml = diasRel.map(function(d, idx){
+      var info = porDiaRel[d] || {total:0, count:0, diverg:0};
+      var isLast = idx === nDiasRel - 1;
+      var showLabel = showAllLabelsRel || isLast;
+      var tip = dispDate(d)+' · '+money(info.total)+' · '+info.count+' fechamento'+(info.count===1?'':'s') +
+        (info.diverg ? ' · '+info.diverg+' divergência'+(info.diverg===1?'':'s') : '');
+      return '<div class="trend7-point'+(isLast?' today':'')+'" style="left:'+evoRelXPct(idx).toFixed(2)+'%;top:'+evoRelYPct(evoRelValues[idx]).toFixed(2)+'%;">' +
+        (showLabel ? '<span class="trend7-value">'+money(info.total)+'</span>' : '') +
+        '<span class="trend7-dot'+(info.diverg ? ' has-diverg' : '')+'" title="'+esc(tip)+'"></span>' +
+      '</div>';
+    }).join('');
+    var evoRelDayLabels = diasRel.map(function(d, idx){
+      var showLabel = (idx % showEveryDayRel === 0) || idx === nDiasRel - 1;
+      return '<span class="trend7-day-label'+(idx===nDiasRel-1?' today':'')+'">'+(showLabel ? d.slice(8,10)+'/'+d.slice(5,7) : '')+'</span>';
+    }).join('');
+    var evoRelTituloLoja = filterLoja === "__all__" ? "Rede (todas as lojas)" : filterLoja;
+    var evolucaoHtml =
+      '<div class="report-chart-box" style="margin-bottom:16px;">' +
+        '<div class="section-label">Evolução de vendas por dia — '+esc(evoRelTituloLoja)+'</div>' +
+        '<div class="trend7-wrap">' +
+          '<div class="trend7-plot">' +
+            '<svg class="trend7-svg" viewBox="0 0 100 100" preserveAspectRatio="none">' +
+              '<polyline class="trend7-line" points="'+evoRelLinePoints+'" vector-effect="non-scaling-stroke"></polyline>' +
+            '</svg>' +
+            evoRelPointsHtml +
           '</div>' +
-          '<div class="donut-legend">'+legendRows+'</div>' +
-        '</div>';
-    }
-
-    // Lojas ordenadas por venda — usada só pra achar as 4 líderes do donut
-    // de participação logo abaixo.
-    var lojasPorVendas = state.lojas.slice().sort(function(a,b){ return (porLojaPeriodo[b]||0) - (porLojaPeriodo[a]||0); });
-
-    // Donut "Participação das vendas" — as 4 lojas de maior venda em
-    // destaque, o resto agrupado em "Demais" (mesmo critério do donut de
-    // faturamento já usado no ranking de líderes).
-    var donutColors = ['var(--gold)','var(--accent)','var(--positive)','var(--pay-pix)'];
-    var topVendas = lojasPorVendas.filter(function(l){ return (porLojaPeriodo[l]||0) > 0; }).slice(0, 4);
-    var demaisVendas = totVendasPeriodo - topVendas.reduce(function(s,l){ return s + (porLojaPeriodo[l]||0); }, 0);
-    var participacaoSlices = topVendas.map(function(l, idx){
-      var v = porLojaPeriodo[l]||0;
-      return {label:l, value:v, color:donutColors[idx], displayValue: pct(totVendasPeriodo>0 ? (v/totVendasPeriodo*100) : 0)};
-    });
-    if (demaisVendas > 0.005){
-      participacaoSlices.push({label:'Demais', value:demaisVendas, color:'var(--surface-2)', displayValue: pct(totVendasPeriodo>0 ? (demaisVendas/totVendasPeriodo*100) : 0)});
-    }
-    var participacaoDonutHtml = buildDonutHtml(participacaoSlices, 'Total', money(totVendasPeriodo));
+          '<div class="trend7-day-labels">'+evoRelDayLabels+'</div>' +
+        '</div>' +
+      '</div>';
 
     var geradoEmStr = formatDateTime(new Date().toISOString());
 
-    var rows = state.lojas.slice().sort().map(function(l){
+    var lojasParaTabela = lojasEscopo.slice().sort();
+    var rows = lojasParaTabela.map(function(l){
       var e = todaysByLoja[l];
       var statusHoje;
       if (!e){
@@ -3281,7 +3369,7 @@ function appMain(){
       } else {
         var m3 = metrics(e);
         var divergente = Math.abs(m3.diffVendas) > TOL || Math.abs(m3.diffCaixa) > TOL;
-        statusHoje = divergente ? '<span class="rank-status divergencia">✓ Fechado ⚠</span>' : '<span class="rank-status fechado">Fechado</span>';
+        statusHoje = divergente ? '<span class="rank-status fechado">✓ Fechado <span class="rank-status-warn">⚠</span></span>' : '<span class="rank-status fechado">✓ Fechado</span>';
       }
       var participacaoLoja = totVendasPeriodo > 0 ? ((porLojaPeriodo[l]||0) / totVendasPeriodo * 100) : 0;
       var varLoja = variacaoPct(porLojaPeriodo[l]||0, porLojaAnteriorRel[l]||0);
@@ -3298,18 +3386,19 @@ function appMain(){
     // pra quem for ler o relatório (ou imprimir/exportar) não precisar
     // interpretar gráfico nenhum pra entender o que aconteceu no período.
     var resumoPartes = [];
+    var resumoSujeito = filterLoja === "__all__" ? 'a rede' : esc(filterLoja);
     resumoPartes.push(
-      'No período de '+dispDate(filterStart)+' a '+dispDate(filterEnd)+', a rede registrou '+money(totVendasPeriodo)+
+      'No período de '+dispDate(filterStart)+' a '+dispDate(filterEnd)+', '+resumoSujeito+' registrou '+money(totVendasPeriodo)+
       ' em vendas e '+totFechamentosPeriodo+' fechamento'+(totFechamentosPeriodo===1?'':'s')+
       (varVendas!==null ? ', '+(varVendas>=0?'um crescimento de ':'uma queda de ')+pct(Math.abs(varVendas))+' em relação ao período anterior' : '')+'.'
     );
-    if (lojaLider){
+    if (filterLoja === "__all__" && lojaLider){
       resumoPartes.push(esc(lojaLider)+' foi a loja líder em vendas, respondendo por '+pct(totVendasPeriodo>0 ? (lojaLiderValor/totVendasPeriodo*100) : 0)+' do total.');
     }
     if (totDivergPeriodo > 0.005){
       resumoPartes.push(
         'Foram '+money(totDivergPeriodo)+' em divergências, em '+qtdDivergentesPeriodo+' fechamento'+(qtdDivergentesPeriodo===1?'':'s')+
-        (lojaPiorDiverg ? ', concentradas principalmente em '+esc(lojaPiorDiverg) : '')+
+        (filterLoja === "__all__" && lojaPiorDiverg ? ', concentradas principalmente em '+esc(lojaPiorDiverg) : '')+
         (varDiverg!==null ? ' ('+(varDiverg>=0?'+':'')+pct(varDiverg)+' vs período anterior)' : '')+'.'
       );
     } else {
@@ -3319,15 +3408,20 @@ function appMain(){
       resumoPartes.push(pendentesHoje+' loja'+(pendentesHoje===1?'':'s')+' ainda '+(pendentesHoje===1?'está':'estão')+' com o fechamento de hoje pendente.');
     }
 
+    var lojaOptsRel = ['<option value="__all__"'+(filterLoja==="__all__"?' selected':'')+'>Todas as lojas</option>'].concat(
+      state.lojas.map(function(l){ return '<option value="'+esc(l)+'"'+(filterLoja===l?' selected':'')+'>'+esc(l)+'</option>'; })
+    ).join('');
+
     wrap.innerHTML =
       '<div class="report-cover">' +
         '<div class="report-cover-title"><span class="report-cover-icon">📊</span><div>' +
           '<h2>Relatório do período</h2>' +
           '<span class="store-status-date">'+dispDate(filterStart)+' → '+dispDate(filterEnd)+'</span>' +
         '</div></div>' +
-        '<div class="report-cover-meta">' +
-          '<span>Gerado em '+geradoEmStr+'</span>' +
-          '<span>Responsável pela conferência: '+esc(nomeAdminLogado())+'</span>' +
+        '<div class="report-filter-controls">' +
+          '<label class="field-inline">Loja<select id="filterLoja">'+lojaOptsRel+'</select></label>' +
+          '<label class="field-inline">De<input type="date" id="filterStart" value="'+esc(filterStart)+'" /></label>' +
+          '<label class="field-inline">Até<input type="date" id="filterEnd" value="'+esc(filterEnd)+'" /></label>' +
         '</div>' +
       '</div>' +
       '<div class="report-quick">'+presetBtns+'</div>' +
@@ -3350,19 +3444,30 @@ function appMain(){
         '</div></div>' +
       '</div>' +
       '<div class="report-summary"><div class="section-label">Resumo executivo</div><p>'+resumoPartes.join(' ')+'</p></div>' +
-      '<div class="report-trend-grid">' +
-        '<div class="report-chart-box">' +
-          buildMonthlyChartHtml() +
-        '</div>' +
-        '<div class="report-chart-box">' +
-          '<div class="section-label">Participação das vendas (%)</div>' +
-          participacaoDonutHtml +
-        '</div>' +
+      // O donut "Participação das vendas (%)" saiu daqui — ele repetia a
+      // mesma informação do donut "Distribuição do faturamento" do
+      // Dashboard (mesmas 4 lojas + "Demais", mesmo cálculo), e a
+      // participação de cada loja já aparece na coluna própria da tabela
+      // logo abaixo. O gráfico mensal fica sozinho, ocupando a largura toda.
+      '<div class="report-chart-box" style="margin-bottom:16px;">' +
+        buildMonthlyChartHtml() +
       '</div>' +
+      evolucaoHtml +
       '<div class="report-table-wrap"><table class="report-table"><thead><tr>' +
         '<th>Loja</th><th>Vendas no período</th><th>Participação</th><th>Divergências (R$)</th><th>Vs. período anterior</th><th>Status hoje</th>' +
       '</tr></thead><tbody>'+rows+'</tbody></table></div>' +
-      '<p class="evo-chart-hint report-footer-hint">Dados atualizados em: '+geradoEmStr+'</p>';
+      '<p class="evo-chart-hint report-footer-hint">Gerado em '+geradoEmStr+' · Responsável pela conferência: '+esc(nomeAdminLogado())+' · Dados atualizados em: '+geradoEmStr+'</p>';
+
+    // #filterLoja/#filterStart/#filterEnd agora nascem aqui dentro (ver
+    // report-cover acima) e são recriados a cada render — por isso os
+    // listeners são religados toda vez, igual aos outros controles deste
+    // painel (.report-preset-btn, .monthly-bar-wrap etc. logo abaixo).
+    var filterLojaEl = wrap.querySelector('#filterLoja');
+    if (filterLojaEl) filterLojaEl.addEventListener('change', function(e){ filterLoja = e.target.value; render(); });
+    var filterStartEl = wrap.querySelector('#filterStart');
+    if (filterStartEl) filterStartEl.addEventListener('change', function(e){ applyCustomRange(e.target.value, filterEnd); });
+    var filterEndEl = wrap.querySelector('#filterEnd');
+    if (filterEndEl) filterEndEl.addEventListener('change', function(e){ applyCustomRange(filterStart, e.target.value); });
 
     // Toggle Mensal/Trimestral do gráfico de tendência — só re-renderiza
     // esse painel (não mexe no período do relatório).
@@ -4032,6 +4137,23 @@ function appMain(){
     return '<span class="pill negative">▼ '+labelNeg+' '+money(Math.abs(v))+'</span>';
   }
 
+  // O cabeçalho de "Lançamentos" é estático no HTML (só a lista de cards
+  // é recriada a cada render) — então o bloco de filtro é (re)inserido na
+  // frente do botão "Exportar CSV" toda vez, sem mexer no próprio botão
+  // (que já tem seu listener preso desde attachHandlers()).
+  function renderLancFilterHeader(){
+    var right = document.getElementById('lancFilterRight');
+    if (!right) return;
+    var old = document.getElementById('lancFilterControlsWrap');
+    if (old) old.remove();
+    var exportBtn = document.getElementById('exportBtn');
+    var wrapDiv = document.createElement('div');
+    wrapDiv.id = 'lancFilterControlsWrap';
+    wrapDiv.innerHTML = filterControlsHtml('filterLanc');
+    right.insertBefore(wrapDiv, exportBtn);
+    wireFilterControls(wrapDiv, 'filterLanc');
+  }
+
   function renderEntries(){
     var list = filteredEntries().slice().sort(function(a,b){ return b.data.localeCompare(a.data) || (b.criadoEm||'').localeCompare(a.criadoEm||''); });
     var wrap = document.getElementById('entriesList');
@@ -4041,7 +4163,7 @@ function appMain(){
     }
     wrap.innerHTML = list.map(function(e){
       var m = metrics(e);
-      var statusClass = Math.abs(m.diffVendas)<=TOL && Math.abs(m.diffCaixa)<=TOL ? '' :
+      var statusClass = Math.abs(m.diffVendas)<=TOL && Math.abs(m.diffCaixa)<=TOL ? 'st-ok' :
         ((m.diffVendas<0 || m.diffCaixa<0) ? 'st-negative' : 'st-positive');
       var tags = (e.motivos||[]).map(function(t){ return '<span class="tag">'+esc(t)+'</span>'; }).join('');
       // Quem fecha uma loja hoje não tem login individual (é a senha da
@@ -4546,6 +4668,7 @@ function appMain(){
   function render(){
     populateSelects();
     renderNotificationBadges();
+    renderWelcomeBanner();
     renderStoreStatus();
     renderPerformancePanel();
     renderDivergencesPanel();
@@ -4555,6 +4678,7 @@ function appMain(){
     renderLojasPanel();
     renderMotivosPanel();
     renderStats();
+    renderLancFilterHeader();
     renderEntries();
   }
 
@@ -4616,9 +4740,10 @@ function appMain(){
     brandHome.addEventListener('keydown', function(e){
       if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); goHome(); }
     });
-    document.getElementById('filterLoja').addEventListener('change', function(e){ filterLoja = e.target.value; render(); });
-    document.getElementById('filterStart').addEventListener('change', function(e){ applyCustomRange(e.target.value, filterEnd); });
-    document.getElementById('filterEnd').addEventListener('change', function(e){ applyCustomRange(filterStart, e.target.value); });
+    // #filterLoja/#filterStart/#filterEnd não existem mais como elementos
+    // fixos da página — nascem dentro do relatório (ver renderReportsPanel,
+    // que religa esses mesmos listeners a cada render, porque o elemento é
+    // recriado do zero toda vez).
     document.getElementById('entryForm').addEventListener('submit', handleSubmit);
     document.getElementById('successContinueBtn').addEventListener('click', function(){
       // #successScreen fica DENTRO de #appScreens — trocar de tela primeiro
