@@ -250,6 +250,26 @@
   .period-btn:hover{border-color:var(--accent);color:var(--accent);}
   .period-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600;}
 
+  /* Paginação por dia (Lançamentos e Logs de segurança) — números redondos
+     estilo busca, com Anterior/Mais quando passa de 10 páginas. */
+  .pg-wrap{
+    display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+    gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
+  }
+  .pg-nums{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;}
+  .pg-num{
+    width:30px;height:30px;border-radius:50%;border:1px solid transparent;background:none;
+    color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-size:.82rem;cursor:pointer;
+  }
+  .pg-num:hover{border-color:var(--accent);color:var(--accent);}
+  .pg-num.active{background:var(--accent);color:var(--accent-ink);font-weight:600;}
+  .pg-actions{display:flex;gap:8px;}
+  .pg-nav{
+    padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);
+    color:var(--ink-soft);font-size:.78rem;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap;
+  }
+  .pg-nav:hover{border-color:var(--accent);color:var(--accent);}
+
   .banner{
     background:var(--accent-soft);border:1px solid var(--accent);color:var(--ink);
     border-radius:10px;padding:10px 14px;font-size:.86rem;margin-bottom:14px;
@@ -1198,6 +1218,7 @@
             </div>
           </div>
           <div class="entries" id="entriesList"></div>
+          <div id="entriesPaginationWrap"></div>
         </section>
       </div>
       <div class="manager-tab" data-tab-content="divergencias">
@@ -1312,6 +1333,11 @@ function appMain(){
   // Central de auditoria financeira: qual status de divergência está sendo
   // exibido na grade (aberta/justificada/resolvida/todas).
   var divergStatusFilter = "todas";
+  // Paginação de Lançamentos e Logs de segurança — cada página mostra um
+  // dia só (na prática, perto da quantidade de lojas por dia), em vez de
+  // carregar o histórico inteiro de uma vez na tela.
+  var entriesPage = 1;
+  var logsPage = 1;
   var WIZARD_STEPS = [
     {n:0, fields:['f-data'], label:'Dados gerais'},
     {n:1, fields:['f-vendas'], label:'Vendas'},
@@ -2342,11 +2368,49 @@ function appMain(){
   // que atualiza os outros cabeçalhos também.
   function wireFilterControls(container, idPrefix){
     var lojaEl = container.querySelector('#'+idPrefix+'Loja');
-    if (lojaEl) lojaEl.addEventListener('change', function(e){ filterLoja = e.target.value; render(); });
+    if (lojaEl) lojaEl.addEventListener('change', function(e){ filterLoja = e.target.value; if (idPrefix==='filterLanc') entriesPage=1; render(); });
     var startEl = container.querySelector('#'+idPrefix+'Start');
-    if (startEl) startEl.addEventListener('change', function(e){ applyCustomRange(e.target.value, filterEnd); });
+    if (startEl) startEl.addEventListener('change', function(e){ if (idPrefix==='filterLanc') entriesPage=1; applyCustomRange(e.target.value, filterEnd); });
     var endEl = container.querySelector('#'+idPrefix+'End');
-    if (endEl) endEl.addEventListener('change', function(e){ applyCustomRange(filterStart, e.target.value); });
+    if (endEl) endEl.addEventListener('change', function(e){ if (idPrefix==='filterLanc') entriesPage=1; applyCustomRange(filterStart, e.target.value); });
+  }
+
+  // Paginação estilo "Google" (números + Mais/Anterior), reaproveitada em
+  // Lançamentos e nos Logs de segurança. Cada página é um dia inteiro —
+  // agrupa a lista (já ordenada do mais novo pro mais velho) em blocos por
+  // data, preservando a ordem, em vez de cortar num número fixo de linhas
+  // (o que partiria os lançamentos de um mesmo dia em duas páginas).
+  function groupByDay(list, dateOf){
+    var groups = [], byDate = {};
+    list.forEach(function(item){
+      var d = dateOf(item) || '—';
+      if (!byDate[d]){ byDate[d] = {date: d, items: []}; groups.push(byDate[d]); }
+      byDate[d].items.push(item);
+    });
+    return groups;
+  }
+  // Mostra até 10 números por vez (igual à paginação clássica do Google);
+  // com mais páginas do que isso, "Mais ›" avança pro próximo bloco de 10.
+  function paginationHtml(idPrefix, current, total){
+    if (total <= 1) return '';
+    var WINDOW = 10;
+    var windowStart = Math.floor((current-1)/WINDOW)*WINDOW + 1;
+    var windowEnd = Math.min(windowStart+WINDOW-1, total);
+    var nums = '';
+    for (var p = windowStart; p <= windowEnd; p++){
+      nums += '<button type="button" class="pg-num'+(p===current?' active':'')+'" data-page="'+p+'">'+p+'</button>';
+    }
+    var prevBtn = windowStart > 1 ? '<button type="button" class="pg-nav pg-prev" data-page="'+(windowStart-1)+'">‹ Anterior</button>' : '';
+    var moreBtn = windowEnd < total ? '<button type="button" class="pg-nav pg-more" data-page="'+(windowEnd+1)+'">Mais ›</button>' : '';
+    return '<div class="pg-wrap">' +
+      '<div class="pg-nums">'+nums+'</div>' +
+      '<div class="pg-actions">'+prevBtn+moreBtn+'</div>' +
+    '</div>';
+  }
+  function wirePagination(container, onPage){
+    Array.prototype.forEach.call(container.querySelectorAll('.pg-num, .pg-nav'), function(btn){
+      btn.onclick = function(){ onPage(parseInt(btn.getAttribute('data-page'),10)); };
+    });
   }
 
   function populateSelects(){
@@ -3614,7 +3678,15 @@ function appMain(){
       '</tr>';
     }).join('') || '<tr><td colspan="6"><div class="empty-state">Nenhum usuário cadastrado.</div></td></tr>';
 
-    var logs = (state.securityLogs || []).slice().sort(function(a,b){ return (b.timestamp||'').localeCompare(a.timestamp||''); }).slice(0, 20);
+    var allLogs = (state.securityLogs || []).slice().sort(function(a,b){ return (b.timestamp||'').localeCompare(a.timestamp||''); });
+    // Mesma paginação por dia do Lançamentos — em vez de cortar num número
+    // fixo (os antigos "últimos 20"), agrupa por data e mostra um dia por
+    // página, então o histórico inteiro fica acessível sem carregar tudo
+    // de uma vez.
+    var logDayGroups = groupByDay(allLogs, function(l){ return (l.timestamp||'').slice(0,10); });
+    if (logsPage > logDayGroups.length) logsPage = logDayGroups.length;
+    if (logsPage < 1) logsPage = 1;
+    var logs = logDayGroups.length ? logDayGroups[logsPage-1].items : [];
     var logsRows = logs.map(function(l){
       return '<tr>' +
         '<td>'+esc(formatDateTime(l.timestamp))+'</td>' +
@@ -3631,10 +3703,17 @@ function appMain(){
       '<div class="report-table-wrap"><table class="users-table"><thead><tr>' +
         '<th>Nome</th><th>Login</th><th>Perfil</th><th>Status</th><th>Segurança</th><th></th>' +
       '</tr></thead><tbody>'+rows+'</tbody></table></div>' +
-      '<div class="panel-head" style="margin-top:20px;"><h2>🔒 Logs de segurança</h2><span class="store-status-date">últimos '+logs.length+'</span></div>' +
+      '<div class="panel-head" style="margin-top:20px;"><h2>🔒 Logs de segurança</h2><span class="store-status-date">'+allLogs.length+' no total</span></div>' +
       '<div class="report-table-wrap"><table class="users-table"><thead><tr>' +
         '<th>Data/Hora</th><th>Usuário</th><th>Evento</th><th>Tentativas</th><th>IP</th>' +
-      '</tr></thead><tbody>'+logsRows+'</tbody></table></div>';
+      '</tr></thead><tbody>'+logsRows+'</tbody></table></div>' +
+      '<div id="logsPaginationWrap"></div>';
+
+    var logsPagWrap = wrap.querySelector('#logsPaginationWrap');
+    if (logsPagWrap){
+      logsPagWrap.innerHTML = paginationHtml('logs', logsPage, logDayGroups.length);
+      wirePagination(logsPagWrap, function(p){ logsPage = p; renderUsersPanel(); });
+    }
 
     document.getElementById('btnUserAdd').onclick = openAddUserModal;
 
@@ -4157,11 +4236,20 @@ function appMain(){
   function renderEntries(){
     var list = filteredEntries().slice().sort(function(a,b){ return b.data.localeCompare(a.data) || (b.criadoEm||'').localeCompare(a.criadoEm||''); });
     var wrap = document.getElementById('entriesList');
+    var pagWrap = document.getElementById('entriesPaginationWrap');
     if (list.length === 0){
       wrap.innerHTML = '<div class="empty-state">Nenhum fechamento neste filtro ainda.</div>';
+      if (pagWrap) pagWrap.innerHTML = '';
       return;
     }
-    wrap.innerHTML = list.map(function(e){
+    // Uma página = um dia inteiro (na prática, perto da quantidade de lojas
+    // por dia) — em vez de listar o histórico todo de uma vez.
+    var dayGroups = groupByDay(list, function(e){ return e.data; });
+    if (entriesPage > dayGroups.length) entriesPage = dayGroups.length;
+    if (entriesPage < 1) entriesPage = 1;
+    var pageList = dayGroups[entriesPage-1].items;
+
+    wrap.innerHTML = pageList.map(function(e){
       var m = metrics(e);
       var statusClass = Math.abs(m.diffVendas)<=TOL && Math.abs(m.diffCaixa)<=TOL ? 'st-ok' :
         ((m.diffVendas<0 || m.diffCaixa<0) ? 'st-negative' : 'st-positive');
@@ -4206,6 +4294,11 @@ function appMain(){
     Array.prototype.forEach.call(wrap.querySelectorAll('.btn-del'), function(btn){
       btn.onclick = function(){ deleteEntry(btn.getAttribute('data-id')); };
     });
+
+    if (pagWrap){
+      pagWrap.innerHTML = paginationHtml('entries', entriesPage, dayGroups.length);
+      wirePagination(pagWrap, function(p){ entriesPage = p; renderEntries(); });
+    }
   }
 
   function toggleDespesasJust(){
