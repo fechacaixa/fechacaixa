@@ -2538,6 +2538,21 @@ function appMain(){
     return dd+'/'+mm+'/'+yyyy+' '+hh+':'+mi;
   }
 
+  // Chave "AAAA-MM-DD" de um datetime ISO já no fuso local — usada pra
+  // agrupar por dia (ex.: paginação dos Logs de segurança). Segue os mesmos
+  // getters locais de formatDateTime() de propósito: cortar pelo prefixo
+  // cru do ISO (que vem em UTC) desalinharia o corte de página com a data
+  // que a tela mostra, perto da virada da meia-noite.
+  function isoLocalDateKey(iso){
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var yyyy = d.getFullYear();
+    var mm = String(d.getMonth()+1).padStart(2,'0');
+    var dd = String(d.getDate()).padStart(2,'0');
+    return yyyy+'-'+mm+'-'+dd;
+  }
+
   // Central de auditoria financeira — calcula o objeto `divergencia` que
   // fica gravado dentro do próprio documento de fechamento (nenhuma coleção
   // nova, nenhuma estrutura nova). Chamada tanto ao salvar/editar um
@@ -3683,7 +3698,7 @@ function appMain(){
     // fixo (os antigos "últimos 20"), agrupa por data e mostra um dia por
     // página, então o histórico inteiro fica acessível sem carregar tudo
     // de uma vez.
-    var logDayGroups = groupByDay(allLogs, function(l){ return (l.timestamp||'').slice(0,10); });
+    var logDayGroups = groupByDay(allLogs, function(l){ return isoLocalDateKey(l.timestamp); });
     if (logsPage > logDayGroups.length) logsPage = logDayGroups.length;
     if (logsPage < 1) logsPage = 1;
     var logs = logDayGroups.length ? logDayGroups[logsPage-1].items : [];
