@@ -254,25 +254,12 @@
   .period-btn:hover{border-color:var(--accent);color:var(--accent);}
   .period-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600;}
 
-  /* Paginação por dia (Lançamentos e Logs de segurança) — números redondos
-     estilo busca, com Anterior/Mais quando passa de 10 páginas. */
+  /* Carregamento por dia (Lançamentos e Logs de segurança) — um botão
+     "Carregar mais" centralizado, em vez da paginação numerada antiga. */
   .pg-wrap{
     display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
     gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line);
   }
-  .pg-nums{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;}
-  .pg-num{
-    width:30px;height:30px;border-radius:50%;border:1px solid transparent;background:none;
-    color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-size:.82rem;cursor:pointer;
-  }
-  .pg-num:hover{border-color:var(--accent);color:var(--accent);}
-  .pg-num.active{background:var(--accent);color:var(--accent-ink);font-weight:600;}
-  .pg-actions{display:flex;gap:8px;}
-  .pg-nav{
-    padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);
-    color:var(--ink-soft);font-size:.78rem;font-family:'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap;
-  }
-  .pg-nav:hover{border-color:var(--accent);color:var(--accent);}
 
   .banner{
     background:var(--accent-soft);border:1px solid var(--accent);color:var(--ink);
@@ -914,8 +901,8 @@
   .wizard-note{margin-bottom:14px;}
   .wizard-step-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
   form.mode-wizard .wizard-step{display:none;}
-  form.mode-wizard .wizard-step.active{display:block;}
-  form.mode-edit .wizard-step{display:block;margin-bottom:4px;}
+  form.mode-wizard .wizard-step.active:not([hidden]){display:block;}
+  form.mode-edit .wizard-step:not([hidden]){display:block;margin-bottom:4px;}
   form.mode-wizard .loja-select-field{display:none;}
 
   .entries{display:flex;flex-direction:column;gap:10px;}
@@ -939,6 +926,13 @@
   .entry-rows{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;margin:8px 0;font-size:.84rem;}
   .entry-rows .k{color:var(--muted);}
   .entry-rows .v{font-family:'IBM Plex Mono',monospace;}
+  .entry-pay-breakdown{
+    display:flex;flex-wrap:wrap;gap:6px 16px;margin:2px 0 10px;padding:8px 10px;
+    background:var(--surface-2);border-radius:8px;font-size:.78rem;
+  }
+  .entry-pay-breakdown .epb-item{display:flex;align-items:center;gap:6px;color:var(--muted);}
+  .entry-pay-breakdown .epb-dot{width:8px;height:8px;border-radius:50%;background:var(--pay);flex:none;}
+  .entry-pay-breakdown .epb-item b{color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-weight:600;}
   .pill{
     display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;
     font-size:.74rem;font-family:'IBM Plex Mono',monospace;font-weight:600;
@@ -958,6 +952,35 @@
   }
   @media (min-width:600px){
     .topbar{align-items:center;}
+  }
+
+  /* Relatório detalhado (impressão/PDF) — aba Exportação, ver
+     buildPrintReportHtml()/openPrintReport(). Fica escondido na tela
+     normal; @media print esconde o resto do app e mostra só isso, a
+     pessoa salva como PDF pela própria caixa de diálogo de impressão do
+     navegador (sem biblioteca nova, mesmo espírito do CSV). */
+  #printReportArea{display:none;background:#FFFFFF;}
+  /* Fundo branco explícito: o relatório sempre imprime claro, mesmo com o
+     tema escuro ativo no resto do app (os elementos internos sem fundo
+     próprio — h1/h2, linhas ímpares da tabela — herdariam o fundo escuro
+     do body senão, ficando ilegíveis). */
+  .print-report{font-family:'Inter',-apple-system,sans-serif;color:#1C1715;background:#FFFFFF;padding:24px;}
+  .print-report h1{font-size:1.5rem;margin:0 0 4px;}
+  .print-report .pr-meta{color:#6B6260;font-size:.85rem;margin-bottom:20px;}
+  .print-report h2{font-size:1.1rem;margin:22px 0 10px;border-bottom:2px solid #C89B3C;padding-bottom:4px;}
+  .print-report .pr-kpis{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;}
+  .print-report .pr-kpi{background:#F4F5F7;border-radius:8px;padding:10px 14px;min-width:150px;}
+  .print-report .pr-kpi .k{font-size:.72rem;color:#6B6260;text-transform:uppercase;letter-spacing:.03em;}
+  .print-report .pr-kpi .v{font-size:1.15rem;font-weight:700;}
+  .print-report table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:6px;}
+  .print-report th,.print-report td{border:1px solid #DEE1E6;padding:6px 9px;text-align:left;}
+  .print-report th{background:#20242A;color:#fff;}
+  .print-report tr:nth-child(even) td{background:#F8F9FA;}
+  .print-report .pr-footer{margin-top:24px;font-size:.72rem;color:#6B6260;}
+  @media print{
+    #loginScreen, #appScreens{display:none !important;}
+    #printReportArea{display:block !important;}
+    @page{margin:16mm;}
   }
 </style>
 
@@ -983,25 +1006,51 @@
       </div>
 
       <div id="painelLoja" role="tabpanel">
-        <p class="gate-sub">Escolha a loja, digite a senha dela e o nome de quem vai fechar agora.</p>
-        <div class="field">
-          <label for="lojaSelectInput" class="sr-only">Loja</label>
-          <select id="lojaSelectInput"></select>
+        <div id="painelLojaSenha">
+          <p class="gate-sub">Escolha a loja, digite a senha dela e o nome de quem vai fechar agora.</p>
+          <div class="field">
+            <label for="lojaSelectInput" class="sr-only">Loja</label>
+            <select id="lojaSelectInput"></select>
+          </div>
+          <div class="field gate-field-icon">
+            <label for="lojaSelectPin" class="sr-only">Senha da loja</label>
+            <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+            <input type="password" id="lojaSelectPin" class="gi-input" autocomplete="off" maxlength="100" placeholder="Senha da loja" />
+          </div>
+          <div class="field gate-field-icon">
+            <label for="lojaSelectNome" class="sr-only">Seu nome</label>
+            <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
+            <input type="text" id="lojaSelectNome" class="gi-input" autocomplete="off" maxlength="80" placeholder="Seu nome (quem vai fechar agora)" />
+          </div>
+          <button type="button" id="lojaSelectConfirm" class="btn primary gate-submit-btn">
+            <span class="gs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
+            <span>Entrar</span>
+          </button>
+          <div class="gate-fallback-row">
+            <button type="button" id="toggleGoogleLojaLogin" class="gate-link-btn">Entrar com a conta Google da loja</button>
+          </div>
         </div>
-        <div class="field gate-field-icon">
-          <label for="lojaSelectPin" class="sr-only">Senha da loja</label>
-          <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
-          <input type="password" id="lojaSelectPin" class="gi-input" autocomplete="off" maxlength="100" placeholder="Senha da loja" />
+        <div id="painelLojaGoogle" hidden>
+          <p class="gate-sub">Entre com a conta Google desta loja e digite o nome de quem vai fechar agora.</p>
+          <div class="field gate-field-icon">
+            <label for="lojaGoogleNome" class="sr-only">Seu nome</label>
+            <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
+            <input type="text" id="lojaGoogleNome" class="gi-input" autocomplete="off" maxlength="80" placeholder="Seu nome (quem vai fechar agora)" />
+          </div>
+          <button type="button" id="googleSignInLojaBtn" class="btn google-btn gate-submit-btn">
+            <span class="g-icon">
+              <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.3 2.7l6-6C33.9 6.5 29.2 4.5 24 4.5 13.5 4.5 5 13 5 23.5S13.5 42.5 24 42.5 43 34 43 23.5c0-1.3-.1-2.7-.4-3z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13.5 24 13.5c2.8 0 5.3 1 7.3 2.7l6-6C33.9 6.5 29.2 4.5 24 4.5c-7.7 0-14.4 4.4-17.7 10.2z"/><path fill="#4CAF50" d="M24 42.5c5.1 0 9.7-2 13.1-5.2l-6.1-5.1c-2 1.4-4.5 2.3-7 2.3-5.2 0-9.6-3.5-11.2-8.2l-6.5 5C9.5 38 16.2 42.5 24 42.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.7l6.1 5.1C39.9 36.7 43 30.8 43 23.5c0-1.3-.1-2.7-.4-3z"/></svg>
+            </span>
+            <span>Continuar com Google</span>
+          </button>
+          <div class="gate-hint-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span>Só a conta Google cadastrada pra essa loja entra</span>
+          </div>
+          <div class="gate-fallback-row">
+            <button type="button" id="toggleSenhaLojaLogin" class="gate-link-btn">Entrar com a senha da loja</button>
+          </div>
         </div>
-        <div class="field gate-field-icon">
-          <label for="lojaSelectNome" class="sr-only">Seu nome</label>
-          <span class="gi-icon-left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg></span>
-          <input type="text" id="lojaSelectNome" class="gi-input" autocomplete="off" maxlength="80" placeholder="Seu nome (quem vai fechar agora)" />
-        </div>
-        <button type="button" id="lojaSelectConfirm" class="btn primary gate-submit-btn">
-          <span class="gs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
-          <span>Entrar</span>
-        </button>
       </div>
 
       <div id="painelAdmin" role="tabpanel" hidden>
@@ -1103,27 +1152,36 @@
         </div>
       </div>
 
-      <div class="wizard-step" data-step="2">
-        <div class="section-label">Formas de pagamento recebidas</div>
-        <div class="field"><label for="f-dinheiro">Dinheiro</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-dinheiro" required /></div>
+      <div class="wizard-step" data-step="2" id="deliveryFieldWrap" hidden>
+        <div class="section-label">Delivery</div>
+        <div class="field">
+          <label for="f-delivery">Delivery</label>
+          <input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-delivery" />
+          <p class="field-hint">Some junto com o valor de vendas do sistema.</p>
+        </div>
       </div>
 
       <div class="wizard-step" data-step="3">
         <div class="section-label">Formas de pagamento recebidas</div>
-        <div class="field"><label for="f-cartao">Cartão (integrado)</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-cartao" required /></div>
+        <div class="field"><label for="f-dinheiro">Dinheiro</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-dinheiro" required /></div>
       </div>
 
       <div class="wizard-step" data-step="4">
         <div class="section-label">Formas de pagamento recebidas</div>
-        <div class="field"><label for="f-pix">Pix</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-pix" required /></div>
+        <div class="field"><label for="f-cartao">Cartão (integrado)</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-cartao" required /></div>
       </div>
 
       <div class="wizard-step" data-step="5">
         <div class="section-label">Formas de pagamento recebidas</div>
-        <div class="field"><label for="f-pos">Pos (maquininha avulsa)</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-pos" required /></div>
+        <div class="field"><label for="f-pix">Pix</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-pix" required /></div>
       </div>
 
       <div class="wizard-step" data-step="6">
+        <div class="section-label">Formas de pagamento recebidas</div>
+        <div class="field"><label for="f-pos">Pos (maquininha avulsa)</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-pos" required /></div>
+      </div>
+
+      <div class="wizard-step" data-step="7">
         <div class="section-label">Fechamento do dinheiro</div>
         <div class="grid">
           <div class="field"><label for="f-envelope">Enviado no envelope (cofre)</label><input type="text" inputmode="decimal" class="money-input" autocomplete="off" id="f-envelope" required /></div>
@@ -1135,7 +1193,7 @@
         </div>
       </div>
 
-      <div class="wizard-step" data-step="7">
+      <div class="wizard-step" data-step="8">
         <div class="section-label">Conferência final</div>
         <div class="preview" id="livePreview"></div>
 
@@ -1279,6 +1337,8 @@
   </footer>
 </div>
 
+<div id="printReportArea" hidden></div>
+
 <script id="state-data" type="application/json">{"__seed__":true}</script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -1298,6 +1358,11 @@ function appMain(){
   var DEFAULT_STATE = {
     lojas: [],
     lojasRemovidas: [],
+    // Dados cadastrais por loja (CNPJ e endereço) — indexado pelo nome da
+    // loja, à parte de state.lojas (que continua sendo só a lista de
+    // nomes usada em todo o resto do app) pra não mexer em nenhum outro
+    // lugar que já trata state.lojas como uma lista simples de strings.
+    lojasDetalhes: {},
     motivos: ["Valores errados no sistema","Erro de troco","Nota falsa ou danificada","Erro na maquininha","Retirada não registrada","Falta de conferência"],
     entries: [],
     managerPin: '',
@@ -1364,22 +1429,39 @@ function appMain(){
   // Central de auditoria financeira: qual status de divergência está sendo
   // exibido na grade (aberta/justificada/resolvida/todas).
   var divergStatusFilter = "todas";
-  // Paginação de Lançamentos e Logs de segurança — cada página mostra um
-  // dia só (na prática, perto da quantidade de lojas por dia), em vez de
-  // carregar o histórico inteiro de uma vez na tela.
-  var entriesPage = 1;
-  var logsPage = 1;
+  // Carregamento de Lançamentos e Logs de segurança — em vez de paginação
+  // numerada, mostra alguns dias por vez (na prática, perto da quantidade
+  // de lojas por dia) e um botão "Carregar mais" acrescenta o próximo dia
+  // à lista, sem substituir o que já estava visível.
+  var entriesVisibleDays = 1;
+  var logsVisibleDays = 1;
   var WIZARD_STEPS = [
     {n:0, fields:['f-data'], label:'Dados gerais'},
     {n:1, fields:['f-vendas'], label:'Vendas'},
-    {n:2, fields:['f-dinheiro'], label:'Dinheiro'},
-    {n:3, fields:['f-cartao'], label:'Cartão'},
-    {n:4, fields:['f-pix'], label:'Pix'},
-    {n:5, fields:['f-pos'], label:'POS'},
-    {n:6, fields:['f-envelope','f-despesas'], label:'Malote e despesas'},
-    {n:7, fields:[], label:'Conferência final'}
+    {n:2, fields:['f-delivery'], label:'Delivery', skipParaQuiosque:true},
+    {n:3, fields:['f-dinheiro'], label:'Dinheiro'},
+    {n:4, fields:['f-cartao'], label:'Cartão'},
+    {n:5, fields:['f-pix'], label:'Pix'},
+    {n:6, fields:['f-pos'], label:'POS'},
+    {n:7, fields:['f-envelope','f-despesas'], label:'Malote e despesas'},
+    {n:8, fields:[], label:'Conferência final'}
   ];
   var wizardStep = 0;
+  // Loja do fechamento em andamento no wizard — atualizada por
+  // renderClosingContext (fechamento novo ou edição). Decide se a etapa
+  // Delivery entra na sequência (ver activeWizardSteps/isQuiosqueLoja).
+  var wizardLojaAtual = '';
+
+  // Sequência de etapas realmente em uso agora: todas, exceto Delivery
+  // quando a loja atual é Quiosque. wizardStep guarda sempre o "n" (número
+  // fixo da etapa no DOM), nunca a posição dentro dessa lista — assim
+  // "Etapa X de Y" e os pontinhos de progresso mostram só as etapas que a
+  // pessoa realmente vai preencher, e o botão avançar pula direto pra
+  // próxima etapa ativa.
+  function activeWizardSteps(){
+    var quiosque = isQuiosqueLoja(wizardLojaAtual);
+    return WIZARD_STEPS.filter(function(s){ return !(s.skipParaQuiosque && quiosque); });
+  }
 
   // "Remember me" for this browser tab: dois formatos de sessão —
   // {tipo:'usuario', usuario:login} pra Administrador/Consulta (perfil e
@@ -1813,11 +1895,13 @@ function appMain(){
     var sel = document.getElementById('lojaSelectInput');
     var pinField = document.getElementById('lojaSelectPin');
     var nomeField = document.getElementById('lojaSelectNome');
+    var googleNomeField = document.getElementById('lojaGoogleNome');
     if (!sel) return;
     var lojas = state.lojas.slice().sort();
     sel.innerHTML = lojas.map(function(l){ return '<option value="'+esc(l)+'">'+esc(l)+'</option>'; }).join('');
     if (pinField) pinField.value = '';
     if (nomeField) nomeField.value = '';
+    if (googleNomeField) googleNomeField.value = '';
   }
 
   // Login da loja: a senha é a de uma conta com perfil "loja" (uma por
@@ -1838,7 +1922,7 @@ function appMain(){
     var nomeField = document.getElementById('lojaSelectNome');
     var loja = sel && sel.value;
     var pin = pinField ? pinField.value : '';
-    var nome = (nomeField ? nomeField.value : '').trim();
+    var nome = (nomeField ? nomeField.value : '').trim().toUpperCase();
     if (!loja){ showBanner('Selecione a loja.'); return; }
     if (!nome){ showBanner('Digite o nome de quem vai fechar o caixa.'); if (nomeField) nomeField.focus(); return; }
     var ipPromise = fetchClientIpBestEffort();
@@ -1952,6 +2036,91 @@ function appMain(){
     resetForm();
   }
 
+  // Login da loja com conta Google de trabalho (uma conta dedicada por
+  // unidade, fixa no aparelho compartilhado — não é a conta pessoal de
+  // quem está no caixa). Mesmo espírito do attemptGoogleAdminLogin: a
+  // conta continua sendo a MESMA de state.usuarios (mesmo id, mesmo
+  // nome de loja), só muda o jeito de provar quem é — em vez de senha,
+  // confere o e-mail que voltou do Google contra o campo googleEmail
+  // cadastrado nessa conta "loja" (ver openChangeLoginModal). O nome de
+  // quem está fechando o caixa continua sendo digitado à parte, só pra
+  // essa sessão do aparelho (ver authedResponsavelNome) — a conta Google
+  // identifica a LOJA, não a pessoa. Passa pela mesma proteção contra
+  // força bruta e mesmo log de segurança do login por senha; diferente
+  // do Google do Administrador, aqui não existe exceção de "única conta
+  // ativa" (mesma regra do login por senha da loja).
+  async function attemptGoogleLojaLogin(){
+    var btn = document.getElementById('googleSignInLojaBtn');
+    var nomeField = document.getElementById('lojaGoogleNome');
+    var nome = (nomeField ? nomeField.value : '').trim().toUpperCase();
+    if (!nome){ showBanner('Digite o nome de quem vai fechar o caixa.'); if (nomeField) nomeField.focus(); return; }
+    if (!window.firebase || !window.firebase.auth){
+      showBanner('Login com Google não está disponível agora.');
+      return;
+    }
+    if (btn) btn.disabled = true;
+    var ipPromise = fetchClientIpBestEffort();
+    var agoraIso = new Date().toISOString();
+    try{
+      var provider = new window.firebase.auth.GoogleAuthProvider();
+      var result = await window.firebase.auth().signInWithPopup(provider);
+      var email = String((result.user && result.user.email) || '').trim().toLowerCase();
+      var contaLoja = (state.usuarios || []).find(function(x){
+        return x.perfil === 'loja' && x.googleEmail && String(x.googleEmail).trim().toLowerCase() === email;
+      });
+      if (contaLoja && efetivamenteBloqueado(contaLoja)){
+        var horaExpiraLoja = horaCurta(bloqueioExpiraEm(contaLoja));
+        showBanner('Senha da loja bloqueada temporariamente por excesso de tentativas.' + (horaExpiraLoja ? ' Tente novamente às ' + horaExpiraLoja + '.' : ''));
+        await window.firebase.auth().signOut();
+        try{ await window.firebase.auth().signInAnonymously(); }catch(e){}
+        return;
+      }
+      if (!contaLoja || contaLoja.ativo === false){
+        await window.firebase.auth().signOut();
+        try{ await window.firebase.auth().signInAnonymously(); }catch(e){}
+        showBanner('Essa conta Google não está autorizada pra nenhuma loja. Peça pra um administrador cadastrar em Usuários.');
+        var logIdX = makeLogId();
+        persist(function(base){
+          var s = JSON.parse(JSON.stringify(base));
+          s.securityLogs = appendSecurityLog(s.securityLogs, {
+            id: logIdX, usuarioId: (contaLoja && contaLoja.id) || null, login: email, nome: nome,
+            evento: 'google_nao_autorizado', timestamp: agoraIso, ip: null, tentativas: 0
+          });
+          return s;
+        });
+        patchSecurityLogIp(logIdX, ipPromise);
+        return;
+      }
+      authedLoja = contaLoja.nome;
+      authedResponsavelNome = nome;
+      setAuthSession({tipo:'loja', loja: contaLoja.nome, nome: nome});
+      document.getElementById('banner').hidden = true;
+      var logId3 = makeLogId();
+      persist(function(base){
+        var s = JSON.parse(JSON.stringify(base));
+        s.usuarios = (s.usuarios || []).map(function(x){
+          return x.id === contaLoja.id ? Object.assign({}, x, {ultimoAcesso: agoraIso, tentativasLogin: 0}) : x;
+        });
+        s.securityLogs = appendSecurityLog(s.securityLogs, {
+          id: logId3, usuarioId: contaLoja.id, login: contaLoja.login, nome: contaLoja.nome + ' — ' + nome,
+          evento: 'login_sucesso_google', timestamp: agoraIso, ip: null, tentativas: 0
+        });
+        return s;
+      });
+      patchSecurityLogIp(logId3, ipPromise);
+      stage = 'form';
+      document.getElementById('themeToggle').hidden = false;
+      applyStageVisibility();
+      resetForm();
+    }catch(err){
+      if (!err || (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request')){
+        showBanner('Não foi possível entrar com Google agora. Tente de novo.');
+      }
+    }finally{
+      if (btn) btn.disabled = false;
+    }
+  }
+
   // Alterna entre as duas abas da tela inicial (Loja/Administrador) — abre
   // sempre na aba Loja (ver applyStageVisibility), que é o uso do dia a dia;
   // Administrador é onde entra quem gerencia o painel.
@@ -1967,7 +2136,16 @@ function appMain(){
     if (painelAdmin) painelAdmin.hidden = isLoja;
     var banner = document.getElementById('banner');
     if (banner) banner.hidden = true;
-    if (isLoja) renderLojaSelectScreen();
+    if (isLoja){
+      // Sempre volta pro caminho da senha (uso do dia a dia hoje) ao
+      // reabrir a aba Loja — evita deixar alguém preso na tela de Google
+      // depois de ter alternado antes.
+      var painelLojaSenha = document.getElementById('painelLojaSenha');
+      var painelLojaGoogle = document.getElementById('painelLojaGoogle');
+      if (painelLojaSenha) painelLojaSenha.hidden = false;
+      if (painelLojaGoogle) painelLojaGoogle.hidden = true;
+      renderLojaSelectScreen();
+    }
   }
 
   function goToLoginScreen(){
@@ -2220,7 +2398,7 @@ function appMain(){
     var mTotals = mBuckets.map(function(b){
       var total = 0;
       state.entries.forEach(function(e){
-        if (e.data >= b.start && e.data <= b.end) total += num(e.vendas);
+        if (e.data >= b.start && e.data <= b.end) total += vendasTotal(e);
       });
       return total;
     });
@@ -2341,9 +2519,16 @@ function appMain(){
     setTimeout(function(){ el.hidden = true; }, 200);
   }
 
+  // "Vendas sistema" de uma loja com Delivery (ver isQuiosqueLoja/campo
+  // f-delivery) já soma o valor do Delivery — em toda tela que mostra ou
+  // compara "vendas", é este total (não o e.vendas cru) que deve ser
+  // usado. Lojas Quiosque nunca têm e.delivery preenchido, então pra elas
+  // isso é sempre igual a num(e.vendas).
+  function vendasTotal(e){ return num(e.vendas) + num(e.delivery); }
+
   function metrics(e){
     var recebido = num(e.cartao)+num(e.pix)+num(e.pos)+num(e.dinheiro);
-    var diffVendas = recebido - num(e.vendas);
+    var diffVendas = recebido - vendasTotal(e);
     var espEnvelope = num(e.dinheiro) - num(e.despesas);
     var diffCaixa = num(e.envelope) - espEnvelope;
     return {recebido: recebido, diffVendas: diffVendas, espEnvelope: espEnvelope, diffCaixa: diffCaixa};
@@ -2399,11 +2584,11 @@ function appMain(){
   // que atualiza os outros cabeçalhos também.
   function wireFilterControls(container, idPrefix){
     var lojaEl = container.querySelector('#'+idPrefix+'Loja');
-    if (lojaEl) lojaEl.addEventListener('change', function(e){ filterLoja = e.target.value; if (idPrefix==='filterLanc') entriesPage=1; render(); });
+    if (lojaEl) lojaEl.addEventListener('change', function(e){ filterLoja = e.target.value; if (idPrefix==='filterLanc') entriesVisibleDays=1; render(); });
     var startEl = container.querySelector('#'+idPrefix+'Start');
-    if (startEl) startEl.addEventListener('change', function(e){ if (idPrefix==='filterLanc') entriesPage=1; applyCustomRange(e.target.value, filterEnd); });
+    if (startEl) startEl.addEventListener('change', function(e){ if (idPrefix==='filterLanc') entriesVisibleDays=1; applyCustomRange(e.target.value, filterEnd); });
     var endEl = container.querySelector('#'+idPrefix+'End');
-    if (endEl) endEl.addEventListener('change', function(e){ if (idPrefix==='filterLanc') entriesPage=1; applyCustomRange(filterStart, e.target.value); });
+    if (endEl) endEl.addEventListener('change', function(e){ if (idPrefix==='filterLanc') entriesVisibleDays=1; applyCustomRange(filterStart, e.target.value); });
   }
 
   // Paginação estilo "Google" (números + Mais/Anterior), reaproveitada em
@@ -2422,26 +2607,18 @@ function appMain(){
   }
   // Mostra até 10 números por vez (igual à paginação clássica do Google);
   // com mais páginas do que isso, "Mais ›" avança pro próximo bloco de 10.
-  function paginationHtml(idPrefix, current, total){
-    if (total <= 1) return '';
-    var WINDOW = 10;
-    var windowStart = Math.floor((current-1)/WINDOW)*WINDOW + 1;
-    var windowEnd = Math.min(windowStart+WINDOW-1, total);
-    var nums = '';
-    for (var p = windowStart; p <= windowEnd; p++){
-      nums += '<button type="button" class="pg-num'+(p===current?' active':'')+'" data-page="'+p+'">'+p+'</button>';
-    }
-    var prevBtn = windowStart > 1 ? '<button type="button" class="pg-nav pg-prev" data-page="'+(windowStart-1)+'">‹ Anterior</button>' : '';
-    var moreBtn = windowEnd < total ? '<button type="button" class="pg-nav pg-more" data-page="'+(windowEnd+1)+'">Mais ›</button>' : '';
-    return '<div class="pg-wrap">' +
-      '<div class="pg-nums">'+nums+'</div>' +
-      '<div class="pg-actions">'+prevBtn+moreBtn+'</div>' +
-    '</div>';
+  // Botão único "Carregar mais" — substitui a paginação numerada antiga
+  // (1 2 3…) nas duas listas que carregam por dia (Lançamentos e Logs de
+  // segurança). `visible` é quantos dias já estão na tela; cada clique
+  // soma mais um dia (ver onLoadMore em renderEntries/renderUsersPanel),
+  // acrescentando embaixo do que já tinha, sem substituir nada.
+  function loadMoreHtml(visible, total){
+    if (visible >= total) return '';
+    return '<div class="pg-wrap"><button type="button" class="btn ghost small pg-loadmore">Carregar mais</button></div>';
   }
-  function wirePagination(container, onPage){
-    Array.prototype.forEach.call(container.querySelectorAll('.pg-num, .pg-nav'), function(btn){
-      btn.onclick = function(){ onPage(parseInt(btn.getAttribute('data-page'),10)); };
-    });
+  function wireLoadMore(container, onLoadMore){
+    var btn = container.querySelector('.pg-loadmore');
+    if (btn) btn.onclick = onLoadMore;
   }
 
   function populateSelects(){
@@ -2479,7 +2656,7 @@ function appMain(){
     var totVendas=0, totRecebido=0, totDinheiro=0, totCartao=0, totPix=0, totPos=0, totDiffVendas=0, totDiffCaixa=0, divergentes=0;
     list.forEach(function(e){
       var m = metrics(e);
-      totVendas += num(e.vendas); totRecebido += m.recebido;
+      totVendas += vendasTotal(e); totRecebido += m.recebido;
       totDinheiro += num(e.dinheiro); totCartao += num(e.cartao); totPix += num(e.pix); totPos += num(e.pos);
       totDiffVendas += m.diffVendas; totDiffCaixa += m.diffCaixa;
       if (Math.abs(m.diffVendas) > TOL || Math.abs(m.diffCaixa) > TOL) divergentes++;
@@ -2551,7 +2728,26 @@ function appMain(){
     if (!el) return;
     el.innerHTML =
       '<div class="cc-row"><span class="cc-icon">🏪</span><span class="cc-value">'+esc((lojaNome||'').toUpperCase())+'</span></div>' +
-      '<div class="cc-row"><span class="cc-icon">👤</span><span class="cc-value">'+esc(pessoaNome||'—')+'</span></div>';
+      '<div class="cc-row"><span class="cc-icon">👤</span><span class="cc-value">'+esc((pessoaNome||'—').toUpperCase())+'</span></div>';
+    wizardLojaAtual = lojaNome || '';
+    updateDeliveryFieldVisibility(lojaNome);
+  }
+
+  // A etapa Delivery (própria, entre "Vendas do sistema" e "Dinheiro") só
+  // aparece pra lojas de loja completa — nenhuma unidade com "Quiosque" no
+  // nome recebe pedido por delivery (ver isQuiosqueLoja/activeWizardSteps).
+  // Chamado sempre que a loja do fechamento é conhecida (fechamento novo
+  // em resetForm, ou edição em startEdit), nunca a cada re-render do passo
+  // do wizard.
+  function updateDeliveryFieldVisibility(lojaNome){
+    var wrap = document.getElementById('deliveryFieldWrap');
+    if (!wrap) return;
+    var mostraDelivery = !isQuiosqueLoja(lojaNome);
+    wrap.hidden = !mostraDelivery;
+    if (!mostraDelivery){
+      var el = document.getElementById('f-delivery');
+      if (el) el.value = '';
+    }
   }
 
   // Formata um datetime ISO completo (ex.: "resolvidaEm") como "DD/MM/AAAA
@@ -2749,12 +2945,12 @@ function appMain(){
     var faturamentoPeriodo = 0, divergenciaTotal = 0;
     entriesInPeriod().forEach(function(e){
       var div = divergenciaOf(e);
-      faturamentoPeriodo += num(e.vendas);
+      faturamentoPeriodo += vendasTotal(e);
       if (div) divergenciaTotal += div.valor;
 
       var agg = porLoja[e.loja];
       if (!agg) return; // fechamento de uma loja removida — já contado nos totais acima, sem card próprio
-      agg.total += num(e.vendas);
+      agg.total += vendasTotal(e);
       agg.count += 1;
       if (div){
         agg.divergente = true;
@@ -2836,20 +3032,20 @@ function appMain(){
     var porDia = {}; // data ISO -> {total, count, diverg}
 
     periodo.forEach(function(e){
-      porLojaPeriodo[e.loja] = (porLojaPeriodo[e.loja]||0) + num(e.vendas);
+      porLojaPeriodo[e.loja] = (porLojaPeriodo[e.loja]||0) + vendasTotal(e);
       var prevE = ultimaPorLoja[e.loja];
       if (!prevE || (e.criadoEm||'') > (prevE.criadoEm||'')) ultimaPorLoja[e.loja] = e;
       var m = metrics(e);
       var divergente = Math.abs(m.diffVendas) > TOL || Math.abs(m.diffCaixa) > TOL;
       if (divergente) divergenciaTotalPeriodo += divergenceValue(m);
       if (!porDia[e.data]) porDia[e.data] = {total:0, count:0, diverg:0};
-      porDia[e.data].total += num(e.vendas);
+      porDia[e.data].total += vendasTotal(e);
       porDia[e.data].count += 1;
       if (divergente) porDia[e.data].diverg += 1;
     });
     state.entries.forEach(function(e){
       if (e.data >= prevRange.start && e.data <= prevRange.end){
-        porLojaAnterior[e.loja] = (porLojaAnterior[e.loja]||0) + num(e.vendas);
+        porLojaAnterior[e.loja] = (porLojaAnterior[e.loja]||0) + vendasTotal(e);
       }
     });
 
@@ -3343,11 +3539,11 @@ function appMain(){
         if (!prevE || (e.criadoEm||'') > (prevE.criadoEm||'')) todaysByLoja[e.loja] = e;
       }
       if (e.data >= filterStart && e.data <= filterEnd){
-        porLojaPeriodo[e.loja] = (porLojaPeriodo[e.loja]||0) + num(e.vendas);
-        totVendasPeriodo += num(e.vendas);
+        porLojaPeriodo[e.loja] = (porLojaPeriodo[e.loja]||0) + vendasTotal(e);
+        totVendasPeriodo += vendasTotal(e);
         totFechamentosPeriodo += 1;
         if (!porDiaRel[e.data]) porDiaRel[e.data] = {total:0, count:0, diverg:0};
-        porDiaRel[e.data].total += num(e.vendas);
+        porDiaRel[e.data].total += vendasTotal(e);
         porDiaRel[e.data].count += 1;
         var m = metrics(e);
         if (Math.abs(m.diffVendas) > TOL || Math.abs(m.diffCaixa) > TOL){
@@ -3367,8 +3563,8 @@ function appMain(){
     state.entries.forEach(function(e){
       if (filterLoja !== "__all__" && e.loja !== filterLoja) return;
       if (e.data >= prevRangeRel.start && e.data <= prevRangeRel.end){
-        porLojaAnteriorRel[e.loja] = (porLojaAnteriorRel[e.loja]||0) + num(e.vendas);
-        totVendasAnterior += num(e.vendas);
+        porLojaAnteriorRel[e.loja] = (porLojaAnteriorRel[e.loja]||0) + vendasTotal(e);
+        totVendasAnterior += vendasTotal(e);
         totFechamentosAnterior += 1;
         var m2 = metrics(e);
         if (Math.abs(m2.diffVendas) > TOL || Math.abs(m2.diffCaixa) > TOL) totDivergAnterior += divergenceValue(m2);
@@ -3635,10 +3831,101 @@ function appMain(){
           '<div class="export-option-text"><strong>Divergências (CSV)</strong><span>Só os fechamentos que tiveram diferença, com valor e motivo.</span></div>' +
           '<button type="button" class="btn ghost small" id="btnExportDivergencias">Exportar CSV</button>' +
         '</div>' +
+        '<div class="export-option">' +
+          '<div class="export-option-text"><strong>Relatório detalhado (PDF)</strong><span>Resumo do período, por loja e dia a dia — respeita o filtro de loja/período do topo da tela.</span></div>' +
+          '<button type="button" class="btn ghost small" id="btnExportRelatorioPDF">Gerar PDF</button>' +
+        '</div>' +
       '</div>';
 
     document.getElementById('btnExportLancamentos').onclick = exportCSV;
     document.getElementById('btnExportDivergencias').onclick = exportDivergencesCSV;
+    document.getElementById('btnExportRelatorioPDF').onclick = openPrintReport;
+  }
+
+  // Relatório detalhado (impressão/PDF) — reaproveita o mesmo filtro de
+  // loja/período do topo da tela (filteredEntries()) pra montar uma view só
+  // de impressão: resumo do período, tabela por loja (quando "Todas as
+  // lojas" está selecionado) e tabela dia a dia. Fica escondida na tela
+  // normal (#printReportArea{display:none}) e só aparece via @media print,
+  // que esconde o resto do app — window.print() então abre a caixa de
+  // diálogo do navegador, onde a pessoa escolhe "Salvar como PDF".
+  function buildPrintReportHtml(){
+    var entries = filteredEntries();
+    var porLoja = {}, porDia = {};
+    state.lojas.forEach(function(l){ porLoja[l] = {total:0, count:0, diverg:0}; });
+    var totalVendas = 0, totalCount = 0, totalDiverg = 0, qtdDivergentes = 0;
+
+    entries.forEach(function(e){
+      var v = vendasTotal(e);
+      if (!porLoja[e.loja]) porLoja[e.loja] = {total:0, count:0, diverg:0};
+      porLoja[e.loja].total += v;
+      porLoja[e.loja].count += 1;
+      totalVendas += v;
+      totalCount += 1;
+      if (!porDia[e.data]) porDia[e.data] = {total:0, count:0, diverg:0};
+      porDia[e.data].total += v;
+      porDia[e.data].count += 1;
+      var m = metrics(e);
+      if (Math.abs(m.diffVendas) > TOL || Math.abs(m.diffCaixa) > TOL){
+        var dv = divergenceValue(m);
+        porLoja[e.loja].diverg += dv;
+        porDia[e.data].diverg += dv;
+        totalDiverg += dv;
+        qtdDivergentes += 1;
+      }
+    });
+
+    var lojaLabel = filterLoja === "__all__" ? "Todas as lojas" : filterLoja;
+    var periodoLabel = (filterStart ? dispDate(filterStart) : '—') + ' até ' + (filterEnd ? dispDate(filterEnd) : '—');
+    var geradoEm = new Date().toLocaleString('pt-BR');
+
+    var html = '';
+    html += '<h1>Relatório de Fechamento de Caixa</h1>';
+    html += '<div class="pr-meta">Loja: <strong>'+esc(lojaLabel)+'</strong> &nbsp;·&nbsp; Período: <strong>'+esc(periodoLabel)+'</strong> &nbsp;·&nbsp; Gerado em '+esc(geradoEm)+'</div>';
+
+    html += '<div class="pr-kpis">';
+    html += '<div class="pr-kpi"><div class="k">Faturamento total</div><div class="v">'+money(totalVendas)+'</div></div>';
+    html += '<div class="pr-kpi"><div class="k">Fechamentos</div><div class="v">'+totalCount+'</div></div>';
+    html += '<div class="pr-kpi"><div class="k">Total em divergência</div><div class="v">'+money(totalDiverg)+'</div></div>';
+    html += '<div class="pr-kpi"><div class="k">Fechamentos com divergência</div><div class="v">'+qtdDivergentes+'</div></div>';
+    html += '</div>';
+
+    if (filterLoja === "__all__"){
+      html += '<h2>Por loja</h2>';
+      html += '<table><thead><tr><th>Loja</th><th>Faturamento</th><th>Fechamentos</th><th>Divergência</th></tr></thead><tbody>';
+      state.lojas.forEach(function(l){
+        var d = porLoja[l] || {total:0,count:0,diverg:0};
+        html += '<tr><td>'+esc(l)+'</td><td>'+money(d.total)+'</td><td>'+d.count+'</td><td>'+money(d.diverg)+'</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    html += '<h2>Por dia</h2>';
+    var dias = Object.keys(porDia).sort();
+    if (!dias.length){
+      html += '<p>Nenhum fechamento no período selecionado.</p>';
+    } else {
+      html += '<table><thead><tr><th>Data</th><th>Faturamento</th><th>Fechamentos</th><th>Divergência</th></tr></thead><tbody>';
+      dias.forEach(function(dISO){
+        var d = porDia[dISO];
+        html += '<tr><td>'+dispDate(dISO)+'</td><td>'+money(d.total)+'</td><td>'+d.count+'</td><td>'+money(d.diverg)+'</td></tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    html += '<div class="pr-footer">FechaCaixa — relatório gerado automaticamente pelo sistema.</div>';
+    return html;
+  }
+
+  function openPrintReport(){
+    if (!filterStart || !filterEnd){
+      showBanner('Selecione um período (De/Até) antes de gerar o relatório.', 'error');
+      return;
+    }
+    var area = document.getElementById('printReportArea');
+    area.className = 'print-report';
+    area.innerHTML = buildPrintReportHtml();
+    window.print();
   }
 
   // Painel administrativo: gerenciar usuários (login individual + nível de
@@ -3725,14 +4012,14 @@ function appMain(){
     }).join('') || '<tr><td colspan="6"><div class="empty-state">Nenhum usuário cadastrado.</div></td></tr>';
 
     var allLogs = (state.securityLogs || []).slice().sort(function(a,b){ return (b.timestamp||'').localeCompare(a.timestamp||''); });
-    // Mesma paginação por dia do Lançamentos — em vez de cortar num número
-    // fixo (os antigos "últimos 20"), agrupa por data e mostra um dia por
-    // página, então o histórico inteiro fica acessível sem carregar tudo
-    // de uma vez.
+    // Mesmo carregamento por dia do Lançamentos — em vez de cortar num
+    // número fixo (os antigos "últimos 20"), agrupa por data e mostra um
+    // dia por vez, com "Carregar mais" acrescentando o próximo dia, então
+    // o histórico inteiro fica acessível sem carregar tudo de uma vez.
     var logDayGroups = groupByDay(allLogs, function(l){ return isoLocalDateKey(l.timestamp); });
-    if (logsPage > logDayGroups.length) logsPage = logDayGroups.length;
-    if (logsPage < 1) logsPage = 1;
-    var logs = logDayGroups.length ? logDayGroups[logsPage-1].items : [];
+    if (logsVisibleDays > logDayGroups.length) logsVisibleDays = logDayGroups.length;
+    if (logsVisibleDays < 1) logsVisibleDays = 1;
+    var logs = [].concat.apply([], logDayGroups.slice(0, logsVisibleDays).map(function(g){ return g.items; }));
     var logsRows = logs.map(function(l){
       return '<tr>' +
         '<td>'+esc(formatDateTime(l.timestamp))+'</td>' +
@@ -3757,8 +4044,8 @@ function appMain(){
 
     var logsPagWrap = wrap.querySelector('#logsPaginationWrap');
     if (logsPagWrap){
-      logsPagWrap.innerHTML = paginationHtml('logs', logsPage, logDayGroups.length);
-      wirePagination(logsPagWrap, function(p){ logsPage = p; renderUsersPanel(); });
+      logsPagWrap.innerHTML = loadMoreHtml(logsVisibleDays, logDayGroups.length);
+      wireLoadMore(logsPagWrap, function(){ logsVisibleDays++; renderUsersPanel(); });
     }
 
     document.getElementById('btnUserAdd').onclick = openAddUserModal;
@@ -3803,9 +4090,16 @@ function appMain(){
     });
   }
 
+  // CNPJ e endereço de uma loja (ver state.lojasDetalhes) — retorna sempre
+  // um objeto com os dois campos, mesmo pra loja sem nada cadastrado ainda.
+  function lojaDetalhes(nome){
+    var d = state.lojasDetalhes && state.lojasDetalhes[nome];
+    return {cnpj: (d && d.cnpj) || '', endereco: (d && d.endereco) || ''};
+  }
+
   // A senha de cada loja agora é gerenciada só em Usuários (conta com
-  // perfil "loja", uma por unidade — ver addLoja) — aqui só fica o nome e
-  // o botão de remover, pra não ter dois lugares mexendo na mesma senha.
+  // perfil "loja", uma por unidade — ver addLoja) — aqui fica o nome, CNPJ,
+  // endereço e o botão de remover.
   function renderLojasPanel(){
     var wrap = document.getElementById('lojasPanel');
     if (!wrap || !managerUnlocked) return;
@@ -3813,13 +4107,17 @@ function appMain(){
     {
       var lojasOrdenadas = state.lojas.slice().sort();
       var rows = lojasOrdenadas.map(function(l){
+        var d = lojaDetalhes(l);
         return '<tr>' +
           '<td><strong>'+esc(l)+'</strong></td>' +
+          '<td>'+esc(d.cnpj || '—')+'</td>' +
+          '<td>'+esc(d.endereco || '—')+'</td>' +
           '<td>' +
+            '<button type="button" class="btn ghost small btn-loja-edit" data-loja="'+esc(l)+'">Editar dados</button> ' +
             '<button type="button" class="btn ghost small btn-loja-del" data-loja="'+esc(l)+'" style="color:var(--negative);">Remover</button>' +
           '</td>' +
         '</tr>';
-      }).join('') || ('<tr><td colspan="2"><div class="empty-state">' +
+      }).join('') || ('<tr><td colspan="4"><div class="empty-state">' +
         (readOnlyMode ? 'Nenhuma loja cadastrada ainda.' : 'Nenhuma loja cadastrada ainda — clique em "+ Adicionar loja" acima.') +
         '</div></td></tr>');
 
@@ -3827,9 +4125,12 @@ function appMain(){
         '<div class="panel-head"><h2>Lojas</h2><button type="button" class="btn primary small" id="btnLojaAdd">+ Adicionar loja</button></div>' +
         '<p class="evo-chart-hint">A senha de cada loja (usada em "🏪 Fechar caixa de uma loja") fica em Usuários, junto com Administrador e Consulta — procure o nome da loja lá pra trocar a senha.</p>' +
         '<div class="report-table-wrap"><table class="users-table"><thead><tr>' +
-          '<th>Loja</th><th></th>' +
+          '<th>Loja</th><th>CNPJ</th><th>Endereço</th><th></th>' +
         '</tr></thead><tbody>'+rows+'</tbody></table></div>';
 
+      Array.prototype.forEach.call(wrap.querySelectorAll('.btn-loja-edit'), function(btn){
+        btn.onclick = function(){ openEditLojaDetalhesModal(btn.getAttribute('data-loja')); };
+      });
       Array.prototype.forEach.call(wrap.querySelectorAll('.btn-loja-del'), function(btn){
         btn.onclick = function(){ openRemoveLojaModal(btn.getAttribute('data-loja')); };
       });
@@ -3844,6 +4145,8 @@ function appMain(){
       '<h3>Nova loja</h3>' +
       '<div class="field"><label for="mNovaLojaNome">Nome da loja</label><input type="text" id="mNovaLojaNome" autocomplete="off" maxlength="80" /></div>' +
       '<div class="field"><label for="mNovaLojaLogin">Login</label><input type="text" id="mNovaLojaLogin" autocomplete="off" maxlength="40" /></div>' +
+      '<div class="field"><label for="mNovaLojaCnpj">CNPJ (opcional)</label><input type="text" id="mNovaLojaCnpj" autocomplete="off" maxlength="20" placeholder="00.000.000/0000-00" /></div>' +
+      '<div class="field"><label for="mNovaLojaEndereco">Endereço (opcional)</label><input type="text" id="mNovaLojaEndereco" autocomplete="off" maxlength="200" /></div>' +
       '<p class="evo-chart-hint">O login é sugerido a partir do nome, mas pode ser trocado — e editado depois em Usuários. A loja já nasce com uma senha simples; troque em Usuários assim que puder.</p>' +
       '<div class="form-actions">' +
         '<button type="button" class="btn ghost small" id="modalCancel">Cancelar</button>' +
@@ -3852,6 +4155,8 @@ function appMain(){
       function(box){
         var nomeField = box.querySelector('#mNovaLojaNome');
         var loginField = box.querySelector('#mNovaLojaLogin');
+        var cnpjField = box.querySelector('#mNovaLojaCnpj');
+        var enderecoField = box.querySelector('#mNovaLojaEndereco');
         // Sugere o login a partir do nome enquanto o administrador não
         // tiver digitado nada ali manualmente — assim que ele editar o
         // campo Login, a sugestão automática para de sobrescrever.
@@ -3875,8 +4180,39 @@ function appMain(){
             showBanner('Já existe um usuário com esse login.');
             return;
           }
+          var cnpj = cnpjField.value.trim();
+          var endereco = enderecoField.value.trim();
           closeModal();
-          await addLoja(nome, login);
+          await addLoja(nome, login, cnpj, endereco);
+        });
+      }
+    );
+  }
+
+  // Editar só CNPJ/endereço de uma loja já existente, sem mexer em nome,
+  // login, senha ou qualquer outra coisa (isso continua em Usuários).
+  function openEditLojaDetalhesModal(loja){
+    var d = lojaDetalhes(loja);
+    openModal(
+      '<h3>Dados da loja — '+esc(loja)+'</h3>' +
+      '<div class="field"><label for="mLojaCnpj">CNPJ</label><input type="text" id="mLojaCnpj" autocomplete="off" maxlength="20" placeholder="00.000.000/0000-00" value="'+esc(d.cnpj)+'" /></div>' +
+      '<div class="field"><label for="mLojaEndereco">Endereço</label><input type="text" id="mLojaEndereco" autocomplete="off" maxlength="200" value="'+esc(d.endereco)+'" /></div>' +
+      '<div class="form-actions">' +
+        '<button type="button" class="btn ghost small" id="modalCancel">Cancelar</button>' +
+        '<button type="button" class="btn primary small" id="modalConfirm">Salvar</button>' +
+      '</div>',
+      function(box){
+        box.querySelector('#modalCancel').addEventListener('click', closeModal);
+        box.querySelector('#modalConfirm').addEventListener('click', function(){
+          var cnpj = box.querySelector('#mLojaCnpj').value.trim();
+          var endereco = box.querySelector('#mLojaEndereco').value.trim();
+          closeModal();
+          persist(function(base){
+            var s = JSON.parse(JSON.stringify(base));
+            if (!s.lojasDetalhes) s.lojasDetalhes = {};
+            s.lojasDetalhes[loja] = {cnpj: cnpj, endereco: endereco};
+            return s;
+          });
         });
       }
     );
@@ -4115,12 +4451,20 @@ function appMain(){
   // Nome e o Perfil dela ficam presos ao nome da loja, então só o Login é
   // editável por aqui; Administrador/Consulta já editam o login pela tela
   // "Editar" normal (openEditUserModal), que não se aplica a lojas.
+  // E-mail Google da loja: conta de trabalho dedicada à unidade (não
+  // pessoal), fixa no aparelho compartilhado — permite entrar com
+  // "Continuar com Google" em vez da senha (ver attemptGoogleLojaLogin),
+  // sem trocar a rotina de quem só usa a senha ainda. Campo opcional,
+  // preenchido loja por loja conforme a conta Google de cada uma for
+  // criada.
   function openChangeLoginModal(userId){
     var u = (state.usuarios || []).filter(function(x){ return x.id === userId; })[0];
     if (!u) return;
     openModal(
       '<h3>Editar login — '+esc(u.nome || u.login)+'</h3>' +
       '<div class="field"><label for="mNovoLogin">Login</label><input type="text" id="mNovoLogin" autocomplete="off" maxlength="40" value="'+esc(u.login||'')+'" /></div>' +
+      '<div class="field"><label for="mLojaGoogleEmail">E-mail Google da loja (opcional — permite entrar sem senha)</label>' +
+        '<input type="email" id="mLojaGoogleEmail" autocomplete="off" maxlength="120" placeholder="loja@gmail.com" value="'+esc(u.googleEmail||'')+'" /></div>' +
       '<div class="form-actions">' +
         '<button type="button" class="btn ghost small" id="modalCancel">Cancelar</button>' +
         '<button type="button" class="btn primary small" id="modalConfirm">Salvar</button>' +
@@ -4129,14 +4473,21 @@ function appMain(){
         box.querySelector('#modalCancel').addEventListener('click', closeModal);
         box.querySelector('#modalConfirm').addEventListener('click', function(){
           var login = box.querySelector('#mNovoLogin').value.trim().toLowerCase();
+          var googleEmailRaw = box.querySelector('#mLojaGoogleEmail').value.trim().toLowerCase();
           if (!login){ showBanner('Digite o login.'); return; }
           var outro = findUsuario(login);
           if (outro && outro.id !== userId){ showBanner('Já existe outro usuário com esse login.'); return; }
+          if (googleEmailRaw){
+            if (googleEmailRaw.indexOf('@') === -1){ showBanner('E-mail Google inválido.'); return; }
+            var jaUsado = (state.usuarios || []).some(function(x){ return x.id !== userId && x.googleEmail && x.googleEmail.toLowerCase() === googleEmailRaw; });
+            if (jaUsado){ showBanner('Já existe outra conta com esse e-mail Google.'); return; }
+          }
+          var googleEmail = googleEmailRaw || null;
           closeModal();
           persist(function(base){
             var s = JSON.parse(JSON.stringify(base));
             s.usuarios = (s.usuarios || []).map(function(x){
-              return x.id === userId ? Object.assign({}, x, {login: login}) : x;
+              return x.id === userId ? Object.assign({}, x, {login: login, googleEmail: googleEmail}) : x;
             });
             return s;
           });
@@ -4174,9 +4525,11 @@ function appMain(){
   // renderUsersPanel). As duas coisas nascem e morrem juntas, pra nunca
   // ficar uma loja sem conta (não conseguiria logar) nem uma conta "loja"
   // órfã sem loja nenhuma.
-  async function addLoja(nome, login){
+  async function addLoja(nome, login, cnpj, endereco){
     nome = String(nome || '').trim();
     login = String(login || '').trim().toLowerCase();
+    cnpj = String(cnpj || '').trim();
+    endereco = String(endereco || '').trim();
     if (!nome){ showBanner('Digite o nome da loja.'); return; }
     if (!login){ showBanner('Digite o login da loja.'); return; }
     if (state.lojas.indexOf(nome) !== -1){ showBanner('Já existe uma loja com esse nome.'); return; }
@@ -4191,6 +4544,14 @@ function appMain(){
       // mesmo nome "desfaz" a remoção — o histórico antigo dela volta a
       // contar normalmente em tudo, sem a marca de "loja removida".
       if (s.lojasRemovidas) s.lojasRemovidas = s.lojasRemovidas.filter(function(l){ return l !== nome; });
+      // CNPJ/endereço digitados agora só sobrescrevem o que já existia se
+      // a pessoa realmente preencheu algo — recriar uma loja removida sem
+      // digitar de novo não apaga o que já estava cadastrado antes.
+      if (!s.lojasDetalhes) s.lojasDetalhes = {};
+      if (cnpj || endereco){
+        var anterior = s.lojasDetalhes[nome] || {};
+        s.lojasDetalhes[nome] = {cnpj: cnpj || anterior.cnpj || '', endereco: endereco || anterior.endereco || ''};
+      }
       if (!s.usuarios) s.usuarios = [];
       var existente = s.usuarios.find(function(u){ return u.perfil === 'loja' && u.nome === nome; });
       if (existente){
@@ -4256,6 +4617,39 @@ function appMain(){
     });
   }
 
+  // Detalhamento de "Recebido" no card do lançamento — mostra separado
+  // quanto veio de cada forma de pagamento (mesmas cores/variáveis
+  // --pay-* usadas no gráfico "Por forma de pagamento" do Dashboard, pra
+  // manter a mesma linguagem visual). Formas com valor zero não aparecem,
+  // pra não poluir um card que já tem bastante número.
+  function payBreakdownHtml(e){
+    var itens = [
+      {label:'Dinheiro', valor:num(e.dinheiro), cor:'var(--pay-dinheiro)'},
+      {label:'Cartão', valor:num(e.cartao), cor:'var(--pay-cartao)'},
+      {label:'Pix', valor:num(e.pix), cor:'var(--pay-pix)'},
+      {label:'Pos', valor:num(e.pos), cor:'var(--pay-pos)'}
+    ].filter(function(p){ return p.valor > 0; });
+    if (!itens.length) return '';
+    return '<div class="entry-pay-breakdown">' + itens.map(function(p){
+      return '<span class="epb-item"><span class="epb-dot" style="--pay:'+p.cor+'"></span>'+p.label+' <b>'+money(p.valor)+'</b></span>';
+    }).join('') + '</div>';
+  }
+
+  // Loja com o nome "Quiosque" não tem o campo Delivery no fechamento (ver
+  // f-delivery/updateDeliveryFieldVisibility) — só as lojas de loja
+  // completa, que de fato recebem pedido por delivery.
+  function isQuiosqueLoja(lojaNome){
+    return /quiosque/i.test(String(lojaNome||''));
+  }
+
+  // Nota pequena, discreta, deixando claro de onde veio o valor de
+  // Delivery já somado em "Vendas sistema" (ver vendasTotal) — só aparece
+  // quando o lançamento realmente tem Delivery preenchido.
+  function deliveryNoteHtml(e){
+    if (!(num(e.delivery) > 0)) return '';
+    return '<div class="entry-obs">🛵 Inclui Delivery de '+money(e.delivery)+' somado em "Vendas sistema".</div>';
+  }
+
   function pillHtml(v, labelPos, labelNeg){
     if (Math.abs(v) <= TOL) return '<span class="pill ok">confere</span>';
     if (v > 0) return '<span class="pill positive">▲ '+labelPos+' '+money(v)+'</span>';
@@ -4288,12 +4682,13 @@ function appMain(){
       if (pagWrap) pagWrap.innerHTML = '';
       return;
     }
-    // Uma página = um dia inteiro (na prática, perto da quantidade de lojas
-    // por dia) — em vez de listar o histórico todo de uma vez.
+    // Carrega um dia inteiro por vez (na prática, perto da quantidade de
+    // lojas por dia) — em vez de listar o histórico todo de uma vez.
+    // "Carregar mais" soma mais um dia à lista já visível.
     var dayGroups = groupByDay(list, function(e){ return e.data; });
-    if (entriesPage > dayGroups.length) entriesPage = dayGroups.length;
-    if (entriesPage < 1) entriesPage = 1;
-    var pageList = dayGroups[entriesPage-1].items;
+    if (entriesVisibleDays > dayGroups.length) entriesVisibleDays = dayGroups.length;
+    if (entriesVisibleDays < 1) entriesVisibleDays = 1;
+    var pageList = [].concat.apply([], dayGroups.slice(0, entriesVisibleDays).map(function(g){ return g.items; }));
 
     wrap.innerHTML = pageList.map(function(e){
       var m = metrics(e);
@@ -4304,24 +4699,31 @@ function appMain(){
       // loja + o nome digitado na hora), então "Login:" só aparece quando
       // existe de fato — sem isso a linha inteira de auditoria (com o
       // horário) sumia pra todo fechamento novo feito por uma loja.
+      // O nome de quem fecha o caixa já é salvo em maiúsculo pra
+      // fechamentos novos (ver attemptLojaLogin/attemptGoogleLojaLogin),
+      // mas fechamentos antigos podem ter ficado com o nome como a pessoa
+      // digitou na época — .toUpperCase() aqui deixa a exibição consistente
+      // pra todo mundo, sem precisar migrar dado nenhum.
       var auditLine = (e.nomeResponsavel || e.responsavel) ?
-        ('<div class="entry-audit">Fechamento realizado por: <strong>'+esc(e.nomeResponsavel||e.responsavel)+'</strong>' +
+        ('<div class="entry-audit">Fechamento realizado por: <strong>'+esc((e.nomeResponsavel||e.responsavel).toUpperCase())+'</strong>' +
           (e.loginResponsavel ? ' · Login: <strong>'+esc(e.loginResponsavel)+'</strong>' : '') +
           ' · '+horaDe(e.criadoEm)+'</div>') :
         '';
       return '<div class="entry-card '+statusClass+'" data-id="'+e.id+'">' +
         '<div class="entry-top">' +
           '<div><span class="entry-date">'+dispDate(e.data)+'</span><span class="entry-loja-badge">'+esc(e.loja)+'</span></div>' +
-          '<div class="entry-meta">'+esc(e.responsavel)+'</div>' +
+          '<div class="entry-meta">'+esc(String(e.responsavel||'').toUpperCase())+'</div>' +
         '</div>' +
         '<div class="entry-rows">' +
-          '<div><span class="k">Vendas sistema </span><span class="v">'+money(e.vendas)+'</span></div>' +
+          '<div><span class="k">Vendas sistema </span><span class="v">'+money(vendasTotal(e))+'</span></div>' +
           '<div><span class="k">Recebido </span><span class="v">'+money(m.recebido)+'</span></div>' +
           '<div><span class="k">Dinheiro contado </span><span class="v">'+money(e.dinheiro)+'</span></div>' +
           '<div><span class="k">Despesas </span><span class="v">'+money(e.despesas)+'</span></div>' +
           '<div><span class="k">Malote enviado </span><span class="v">'+money(e.envelope)+'</span></div>' +
           '<div><span class="k">Deveria ir ao malote </span><span class="v">'+money(m.espEnvelope)+'</span></div>' +
         '</div>' +
+        payBreakdownHtml(e) +
+        deliveryNoteHtml(e) +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + pillHtml(m.diffVendas,'sobra vendas','falta vendas') + pillHtml(m.diffCaixa,'despesa não descontada','malote a menos') + '</div>' +
         (tags ? '<div class="entry-tags">'+tags+'</div>' : '') +
         (e.despesasJustificativa ? '<div class="entry-obs">Motivo da despesa: "'+esc(e.despesasJustificativa)+'"</div>' : '') +
@@ -4342,8 +4744,8 @@ function appMain(){
     });
 
     if (pagWrap){
-      pagWrap.innerHTML = paginationHtml('entries', entriesPage, dayGroups.length);
-      wirePagination(pagWrap, function(p){ entriesPage = p; renderEntries(); });
+      pagWrap.innerHTML = loadMoreHtml(entriesVisibleDays, dayGroups.length);
+      wireLoadMore(pagWrap, function(){ entriesVisibleDays++; renderEntries(); });
     }
   }
 
@@ -4356,6 +4758,7 @@ function appMain(){
   function updateLivePreview(){
     var e = {
       vendas: moneyInputValue('f-vendas'),
+      delivery: moneyInputValue('f-delivery'),
       cartao: moneyInputValue('f-cartao'),
       pix: moneyInputValue('f-pix'),
       pos: moneyInputValue('f-pos'),
@@ -4365,6 +4768,7 @@ function appMain(){
     };
     var m = metrics(e);
     document.getElementById('livePreview').innerHTML =
+      (e.delivery > 0 ? '<div class="p-item"><span class="p-label">Vendas + Delivery</span><span class="tabular">'+money(vendasTotal(e))+'</span></div>' : '') +
       '<div class="p-item"><span class="p-label">Recebido</span><span class="tabular">'+money(m.recebido)+'</span></div>' +
       '<div class="p-item"><span class="p-label">Diferença vendas</span>'+pillHtml(m.diffVendas,'sobra','falta')+'</div>' +
       '<div class="p-item"><span class="p-label">Dinheiro − despesas (deveria ir pro malote)</span><span class="tabular">'+money(m.espEnvelope)+'</span></div>' +
@@ -4405,7 +4809,7 @@ function appMain(){
       }
     }
     // Any despesa retirada do caixa needs a justificativa before moving on.
-    if (n === 6 && moneyInputValue('f-despesas') > 0){
+    if (n === 7 && moneyInputValue('f-despesas') > 0){
       var just = document.getElementById('f-despesas-just');
       if (just.value.trim() === ''){
         showBanner('Explique o motivo da despesa antes de avançar.');
@@ -4421,15 +4825,18 @@ function appMain(){
     Array.prototype.forEach.call(form.querySelectorAll('.wizard-step'), function(stepEl){
       stepEl.classList.toggle('active', parseInt(stepEl.getAttribute('data-step'),10) === wizardStep);
     });
-    var dots = WIZARD_STEPS.map(function(s){
+    var steps = activeWizardSteps();
+    var posAtual = 0;
+    var dots = steps.map(function(s, i){
+      if (s.n === wizardStep) posAtual = i;
       var cls = s.n < wizardStep ? 'done' : (s.n === wizardStep ? 'current' : '');
       return '<span class="dot '+cls+'"></span>';
     }).join('');
     document.getElementById('wizardProgress').innerHTML = dots;
     var currentMeta = WIZARD_STEPS[wizardStep];
     document.getElementById('wizardStepIndicator').textContent =
-      'Etapa ' + (wizardStep + 1) + ' de ' + WIZARD_STEPS.length + ' · ' + (currentMeta.label || '');
-    var isFinal = wizardStep === WIZARD_STEPS.length - 1;
+      'Etapa ' + (posAtual + 1) + ' de ' + steps.length + ' · ' + (currentMeta.label || '');
+    var isFinal = steps.length ? steps[steps.length - 1].n === wizardStep : true;
     document.getElementById('nextStepBtn').hidden = isFinal;
     document.getElementById('saveBtn').hidden = !isFinal;
     if (isFinal){
@@ -4480,6 +4887,9 @@ function appMain(){
     renderClosingContext(e.lojaNome || e.loja, e.nomeResponsavel || e.responsavel);
     document.getElementById('f-data').value = e.data;
     document.getElementById('f-vendas').value = centsToDisplay(e.vendas * 100);
+    if (!document.getElementById('deliveryFieldWrap').hidden){
+      document.getElementById('f-delivery').value = centsToDisplay(num(e.delivery) * 100);
+    }
     document.getElementById('f-dinheiro').value = centsToDisplay(e.dinheiro * 100);
     document.getElementById('f-cartao').value = centsToDisplay(e.cartao * 100);
     document.getElementById('f-pix').value = centsToDisplay(e.pix * 100);
@@ -4578,6 +4988,7 @@ function appMain(){
       usuarioId: usuarioIdResp,
       loginResponsavel: loginResponsavel,
       vendas: moneyInputValue('f-vendas'),
+      delivery: document.getElementById('deliveryFieldWrap').hidden ? 0 : moneyInputValue('f-delivery'),
       dinheiro: moneyInputValue('f-dinheiro'),
       cartao: moneyInputValue('f-cartao'),
       pix: moneyInputValue('f-pix'),
@@ -4632,10 +5043,10 @@ function appMain(){
     return /[",;\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
   }
   function toCSV(){
-    var headers = ['Data','Loja','Responsavel','LoginResponsavel','Vendas','Cartao','Pix','Pos','Dinheiro','Envelope','Despesas','JustificativaDespesa','Recebido','DiferencaVendas','EspEnvelope','DiferencaCaixa','Motivos','Observacao'];
+    var headers = ['Data','Loja','Responsavel','LoginResponsavel','Vendas','Delivery','VendasTotal','Cartao','Pix','Pos','Dinheiro','Envelope','Despesas','JustificativaDespesa','Recebido','DiferencaVendas','EspEnvelope','DiferencaCaixa','Motivos','Observacao'];
     var rows = filteredEntries().slice().sort(function(a,b){ return a.data.localeCompare(b.data); }).map(function(e){
       var m = metrics(e);
-      return [e.data,e.loja,e.responsavel,e.loginResponsavel||'',e.vendas,e.cartao,e.pix,e.pos,e.dinheiro,e.envelope,e.despesas,e.despesasJustificativa||'',m.recebido,m.diffVendas.toFixed(2),m.espEnvelope.toFixed(2),m.diffCaixa.toFixed(2),(e.motivos||[]).join('; '),e.obs||'']
+      return [e.data,e.loja,e.responsavel,e.loginResponsavel||'',e.vendas,num(e.delivery),vendasTotal(e),e.cartao,e.pix,e.pos,e.dinheiro,e.envelope,e.despesas,e.despesasJustificativa||'',m.recebido,m.diffVendas.toFixed(2),m.espEnvelope.toFixed(2),m.diffCaixa.toFixed(2),(e.motivos||[]).join('; '),e.obs||'']
         .map(csvField).join(',');
     });
     return headers.join(',') + '\n' + rows.join('\n');
@@ -4900,18 +5311,24 @@ function appMain(){
     document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
     document.getElementById('nextStepBtn').addEventListener('click', function(){
       if (!validateWizardStep(wizardStep)) return;
-      wizardStep = Math.min(wizardStep + 1, WIZARD_STEPS.length - 1);
+      var steps = activeWizardSteps();
+      var idx = -1;
+      for (var i=0;i<steps.length;i++){ if (steps[i].n === wizardStep){ idx = i; break; } }
+      var nextIdx = Math.min(idx + 1, steps.length - 1);
+      wizardStep = steps[nextIdx].n;
       renderWizardStep();
     });
     document.getElementById('entryForm').addEventListener('keydown', function(e){
       var form = document.getElementById('entryForm');
       var isWizard = form.classList.contains('mode-wizard');
-      if (e.key === 'Enter' && isWizard && wizardStep < WIZARD_STEPS.length - 1 && e.target.tagName !== 'TEXTAREA'){
+      var steps = activeWizardSteps();
+      var isLastStep = steps.length ? steps[steps.length-1].n === wizardStep : true;
+      if (e.key === 'Enter' && isWizard && !isLastStep && e.target.tagName !== 'TEXTAREA'){
         e.preventDefault();
         document.getElementById('nextStepBtn').click();
       }
     });
-    ['f-vendas','f-cartao','f-pix','f-pos','f-dinheiro','f-envelope','f-despesas'].forEach(function(id){
+    ['f-vendas','f-delivery','f-cartao','f-pix','f-pos','f-dinheiro','f-envelope','f-despesas'].forEach(function(id){
       attachMoneyMask(id);
       document.getElementById(id).addEventListener('input', updateLivePreview);
     });
@@ -4969,13 +5386,33 @@ function appMain(){
     document.getElementById('loginTabAdmin').addEventListener('click', function(){ showLoginTab('admin'); });
 
     // Entrar numa loja: escolhe a loja, digita a senha dela e o nome de
-    // quem vai fechar o caixa agora.
+    // quem vai fechar o caixa agora. Caminho principal continua sendo a
+    // senha (rotina de hoje, nas 9 lojas); a conta Google da loja
+    // (#painelLojaGoogle) é o novo caminho, opcional loja por loja até
+    // cada uma ter a própria conta Google cadastrada em Usuários — ver
+    // attemptGoogleLojaLogin.
     document.getElementById('lojaSelectConfirm').addEventListener('click', attemptLojaLogin);
     document.getElementById('lojaSelectPin').addEventListener('keydown', function(e){
       if (e.key === 'Enter'){ e.preventDefault(); attemptLojaLogin(); }
     });
     document.getElementById('lojaSelectNome').addEventListener('keydown', function(e){
       if (e.key === 'Enter'){ e.preventDefault(); attemptLojaLogin(); }
+    });
+    document.getElementById('googleSignInLojaBtn').addEventListener('click', attemptGoogleLojaLogin);
+    document.getElementById('lojaGoogleNome').addEventListener('keydown', function(e){
+      if (e.key === 'Enter'){ e.preventDefault(); attemptGoogleLojaLogin(); }
+    });
+    document.getElementById('toggleGoogleLojaLogin').addEventListener('click', function(){
+      document.getElementById('painelLojaSenha').hidden = true;
+      document.getElementById('painelLojaGoogle').hidden = false;
+      document.getElementById('banner').hidden = true;
+      var f = document.getElementById('lojaGoogleNome');
+      if (f) setTimeout(function(){ f.focus(); }, 30);
+    });
+    document.getElementById('toggleSenhaLojaLogin').addEventListener('click', function(){
+      document.getElementById('painelLojaGoogle').hidden = true;
+      document.getElementById('painelLojaSenha').hidden = false;
+      document.getElementById('banner').hidden = true;
     });
 
     // Menu "⋮" de ações da tela de Usuários — fecha qualquer menu aberto ao
