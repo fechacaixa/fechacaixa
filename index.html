@@ -795,7 +795,7 @@
   .perfil-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:600;white-space:nowrap;}
   .perfil-badge.perfil-admin{background:var(--gold-soft);color:var(--gold);}
   .perfil-badge.perfil-loja{background:var(--accent-soft);color:var(--accent);}
-  .perfil-badge.perfil-dono{background:var(--positive-bg);color:var(--positive);}
+  .perfil-badge.perfil-gestao{background:var(--positive-bg);color:var(--positive);}
   .perfil-badge.perfil-consulta{background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--line);}
   .status-pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.72rem;font-weight:600;white-space:nowrap;}
   .status-pill.ativo{background:var(--positive-bg);color:var(--positive);}
@@ -822,10 +822,11 @@
   body.read-only-mode .admin-add-row,
   body.read-only-mode .chip-x{ display:none !important; }
 
-  /* Perfil "dono" (e também "consulta", já coberto acima) — pode revisar,
-     editar, excluir lançamentos e resolver divergências (por isso NÃO usa
-     read-only-mode), mas não gerencia contas nem lojas: só o Admin cria
-     usuário, adiciona/remove loja ou edita a lista de motivos. */
+  /* Perfis de gestão — Gerente/Financeiro/Diretor/Presidente (e também
+     "consulta", já coberto acima) — podem revisar, editar, excluir
+     lançamentos e resolver divergências (por isso NÃO usam read-only-mode),
+     mas não gerenciam contas nem lojas: só o Admin cria usuário,
+     adiciona/remove loja ou edita a lista de motivos. */
   body.manage-restricted .row-menu-btn,
   body.manage-restricted #btnUserAdd,
   body.manage-restricted #btnLojaAdd,
@@ -833,9 +834,9 @@
   body.manage-restricted .btn-loja-edit,
   body.manage-restricted .admin-add-row,
   body.manage-restricted .chip-x{ display:none !important; }
-  /* "Usuários" (criar/editar/bloquear contas) é exclusivo do Admin — Dono
-     continua vendo "Lojas" no menu (só visualização, sem poder alterar:
-     ver .btn-loja-del/.btn-loja-edit/#btnLojaAdd acima). */
+  /* "Usuários" (criar/editar/bloquear contas) é exclusivo do Admin — os
+     perfis de gestão continuam vendo "Lojas" no menu (só visualização, sem
+     poder alterar: ver .btn-loja-del/.btn-loja-edit/#btnLojaAdd acima). */
   body.manage-restricted #sidebarItemUsers{ display:none !important; }
 
   /* Topo da tela de fechamento: loja e responsável carregados sozinhos */
@@ -1424,9 +1425,10 @@ function appMain(){
   // visualizar — todo botão que cria/edita/remove alguma coisa fica
   // escondido (ver CSS .read-only-mode).
   var readOnlyMode = false;
-  // Só o perfil "admin" pode gerenciar contas (Usuários) e lojas — Dono
-  // também entra no painel gerencial e pode editar/excluir lançamentos e
-  // resolver divergências (por isso não usa readOnlyMode), mas não vê os
+  // Só o perfil "admin" pode gerenciar contas (Usuários) e lojas — os
+  // perfis de gestão (Gerente/Financeiro/Diretor/Presidente) também entram
+  // no painel gerencial e podem editar/excluir lançamentos e resolver
+  // divergências (por isso não usam readOnlyMode), mas não veem os
   // botões de adicionar/editar usuário, adicionar/remover loja nem editar
   // a lista de motivos (ver CSS .manage-restricted).
   var canManageAccounts = false;
@@ -1522,8 +1524,22 @@ function appMain(){
   function lojasPermitidasNomes(u){
     return ((u && u.lojasPermitidas) || []).map(function(x){ return x.lojaNome; });
   }
+  // "Gerente", "Financeiro", "Diretor" e "Presidente" são só títulos
+  // diferentes pro mesmo nível de acesso (o que antes era um único perfil
+  // "Dono"): editam/excluem lançamentos e resolvem divergências, mas não
+  // gerenciam contas nem lojas. "dono" fica como valor legado (contas
+  // antigas criadas antes dessa mudança continuam funcionando).
+  var PERFIS_GESTAO = ['gerente', 'financeiro', 'diretor', 'presidente', 'dono'];
+  function isPerfilGestao(p){ return PERFIS_GESTAO.indexOf(p) !== -1; }
   function perfilLabel(p){
-    return p === 'admin' ? 'Admin' : (p === 'dono' ? 'Dono' : (p === 'consulta' ? 'Consulta' : 'Loja'));
+    if (p === 'admin') return 'Admin';
+    if (p === 'consulta') return 'Consulta';
+    if (p === 'gerente') return 'Gerente';
+    if (p === 'financeiro') return 'Financeiro';
+    if (p === 'diretor') return 'Diretor';
+    if (p === 'presidente') return 'Presidente';
+    if (p === 'dono') return 'Gestão';
+    return 'Loja';
   }
 
   // Proteção contra tentativas excessivas de login — um usuário fica
@@ -1624,7 +1640,7 @@ function appMain(){
     }
     var u = findUsuario(sess.usuario);
     if (!u || u.ativo === false) return 'login';
-    if (u.perfil !== 'admin' && u.perfil !== 'consulta' && u.perfil !== 'dono') return 'login'; // perfil "loja" não faz mais login individual
+    if (u.perfil !== 'admin' && u.perfil !== 'consulta' && !isPerfilGestao(u.perfil)) return 'login'; // perfil "loja" não faz mais login individual
     authedUser = u;
     managerUnlocked = true;
     readOnlyMode = (u.perfil === 'consulta');
@@ -1804,7 +1820,7 @@ function appMain(){
       return s;
     });
     patchSecurityLogIp(logId3, ipPromise);
-    if (u.perfil === 'admin' || u.perfil === 'consulta' || u.perfil === 'dono'){
+    if (u.perfil === 'admin' || u.perfil === 'consulta' || isPerfilGestao(u.perfil)){
       managerUnlocked = true;
       readOnlyMode = (u.perfil === 'consulta');
       canManageAccounts = (u.perfil === 'admin');
@@ -3984,7 +4000,7 @@ function appMain(){
     var usuarios = (state.usuarios || []).slice().sort(function(a,b){ return (a.nome||a.login).localeCompare(b.nome||b.login); });
     var totalUsuarios = usuarios.length;
     var totalAdmins = usuarios.filter(function(u){ return u.perfil === 'admin'; }).length;
-    var totalDonos = usuarios.filter(function(u){ return u.perfil === 'dono'; }).length;
+    var totalGestao = usuarios.filter(function(u){ return isPerfilGestao(u.perfil); }).length;
     var totalConsulta = usuarios.filter(function(u){ return u.perfil === 'consulta'; }).length;
     var totalLojasConta = usuarios.filter(function(u){ return u.perfil === 'loja'; }).length;
     var totalAtivos = usuarios.filter(function(u){ return u.ativo !== false; }).length;
@@ -3994,7 +4010,7 @@ function appMain(){
       '<div class="store-kpis">' +
         '<div class="store-kpi kpi-total"><span class="tabular">'+totalUsuarios+'</span><label>👥 Total de usuários</label></div>' +
         '<div class="store-kpi kpi-warning"><span class="tabular">'+totalAdmins+'</span><label>👑 Administradores</label></div>' +
-        '<div class="store-kpi"><span class="tabular">'+totalDonos+'</span><label>🗝️ Donos</label></div>' +
+        '<div class="store-kpi"><span class="tabular">'+totalGestao+'</span><label>🗝️ Gestão</label></div>' +
         '<div class="store-kpi"><span class="tabular">'+totalConsulta+'</span><label>👀 Consulta</label></div>' +
         '<div class="store-kpi"><span class="tabular">'+totalLojasConta+'</span><label>🏪 Lojas</label></div>' +
         '<div class="store-kpi kpi-success"><span class="tabular">'+totalAtivos+'</span><label>✅ Usuários ativos</label></div>' +
@@ -4009,7 +4025,7 @@ function appMain(){
       // em Usuários dá pra trocar a senha, ativar/bloquear e editar o
       // Login (definido pelo administrador na hora de criar a loja, ou
       // trocado depois em "Editar login" — ver openChangeLoginModal).
-      var perfil = u.perfil === 'admin' ? 'admin' : (u.perfil === 'loja' ? 'loja' : (u.perfil === 'dono' ? 'dono' : 'consulta'));
+      var perfil = u.perfil === 'admin' ? 'admin' : (u.perfil === 'loja' ? 'loja' : (isPerfilGestao(u.perfil) ? u.perfil : 'consulta'));
       var isLoja = perfil === 'loja';
       var ativo = u.ativo !== false;
       var travado = efetivamenteBloqueado(u);
@@ -4019,7 +4035,7 @@ function appMain(){
       return '<tr>' +
         '<td><strong>'+esc(u.nome || u.login)+'</strong></td>' +
         '<td>'+esc(u.login)+(u.googleEmail?'<div class="admin-row-sub">🔵 '+esc(u.googleEmail)+'</div>':'')+'</td>' +
-        '<td><span class="perfil-badge perfil-'+esc(perfil)+'">'+esc(perfilLabel(perfil))+'</span></td>' +
+        '<td><span class="perfil-badge perfil-'+esc(isPerfilGestao(perfil) ? 'gestao' : perfil)+'">'+esc(perfilLabel(perfil))+'</span></td>' +
         '<td><span class="status-pill '+(ativo?'ativo':'bloqueado')+'">'+(ativo?'Ativo':'Bloqueado')+'</span></td>' +
         '<td>'+segurancaTxt+'</td>' +
         '<td>' +
@@ -4295,7 +4311,7 @@ function appMain(){
   // quem fecha caixa de loja entra direto com a senha da loja (ver
   // attemptLojaLogin), sem precisar de conta própria nem loja liberada.
   function buildUsuarioFormFields(u){
-    var perfilAtual = u ? (u.perfil === 'admin' ? 'admin' : (u.perfil === 'dono' ? 'dono' : 'consulta')) : 'consulta';
+    var perfilAtual = u ? (u.perfil === 'admin' ? 'admin' : (isPerfilGestao(u.perfil) ? u.perfil : 'consulta')) : 'consulta';
     var ativoAtual = u ? (u.ativo !== false) : true;
     return '' +
       '<div class="field"><label for="mUserNome">Nome completo</label><input type="text" id="mUserNome" maxlength="80" value="'+esc(u?u.nome:'')+'" /></div>' +
@@ -4303,7 +4319,10 @@ function appMain(){
       (u ? '' : '<div class="field"><label for="mUserSenha">Senha</label><input type="password" id="mUserSenha" autocomplete="off" maxlength="100" /></div>') +
       '<div class="field"><label for="mUserPerfil">Perfil</label><select id="mUserPerfil">' +
         '<option value="consulta"'+(perfilAtual==='consulta'?' selected':'')+'>Consulta (somente visualização)</option>' +
-        '<option value="dono"'+(perfilAtual==='dono'?' selected':'')+'>Dono (edita e exclui lançamentos, resolve divergências)</option>' +
+        '<option value="gerente"'+(perfilAtual==='gerente'?' selected':'')+'>Gerente (edita e exclui lançamentos, resolve divergências)</option>' +
+        '<option value="financeiro"'+(perfilAtual==='financeiro'?' selected':'')+'>Financeiro (edita e exclui lançamentos, resolve divergências)</option>' +
+        '<option value="diretor"'+(perfilAtual==='diretor'?' selected':'')+'>Diretor (edita e exclui lançamentos, resolve divergências)</option>' +
+        '<option value="presidente"'+(perfilAtual==='presidente'?' selected':'')+'>Presidente (edita e exclui lançamentos, resolve divergências)</option>' +
         '<option value="admin"'+(perfilAtual==='admin'?' selected':'')+'>Administrador (acesso total)</option>' +
       '</select></div>' +
       '<div class="field" id="mUserGoogleEmailRow" '+(perfilAtual==='admin'?'':'hidden')+'>' +
