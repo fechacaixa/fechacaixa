@@ -147,3 +147,9 @@ Isso só funciona se o provedor "Anônimo" estiver habilitado no projeto Firebas
 4. Em **Firestore Database** → **Regras**, cole o conteúdo do arquivo `firestore.rules` deste repositório e publique.
 
 Sem esses dois passos, o app carrega normalmente mas fica preso na tela de carregamento (o login anônimo falha e a conexão com o Firestore nunca é liberada pelas novas regras).
+
+## Backup automático (coleção `backups`)
+
+Toda vez que o `firestore.rules` for atualizado neste repositório (como acabou de acontecer, ver `SECURITY_REPORT.md`), **é preciso colar o conteúdo novo no Console e publicar de novo** — passo 4 acima. Esqueceu de publicar? O app continua funcionando normalmente (a coleção `backups` é só uma cópia de segurança a mais; nada essencial depende dela), mas o backup automático diário fica silenciosamente sem gravar nada.
+
+O app grava, uma vez por dia, uma cópia completa do estado (todas as lojas, todo o histórico) num documento novo em `backups/{AAAA-MM-DD}` — nunca sobrescreve um dia já gravado. As regras proíbem alterar ou apagar qualquer backup depois de criado, então mesmo que o documento principal (`fechamento_caixa`) seja corrompido ou apagado por engano, os backups diários continuam intactos e dá pra consultar direto pelo Console do Firebase (Firestore Database → coleção `backups`) e copiar o campo `estado` de volta pro documento principal, se um dia precisar restaurar. Além disso, a aba **Exportação** do painel tem um botão "Baixar backup" pra baixar uma cópia completa em JSON na hora, sem esperar a virada do dia.

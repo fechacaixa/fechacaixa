@@ -4150,11 +4150,16 @@ function appMain(){
           '<div class="export-option-text"><strong>Relatório detalhado (PDF)</strong><span>Resumo do período, por loja e dia a dia — respeita o filtro de loja/período do topo da tela.</span></div>' +
           '<button type="button" class="btn ghost small" id="btnExportRelatorioPDF">Gerar PDF</button>' +
         '</div>' +
+        '<div class="export-option">' +
+          '<div class="export-option-text"><strong>Backup completo (JSON)</strong><span>Todas as lojas e todo o histórico, do jeito que está agora — não depende do filtro acima. Além disso, um backup automático roda sozinho uma vez por dia.</span></div>' +
+          '<button type="button" class="btn ghost small" id="btnExportBackup">Baixar backup</button>' +
+        '</div>' +
       '</div>';
 
     document.getElementById('btnExportLancamentos').onclick = exportCSV;
     document.getElementById('btnExportDivergencias').onclick = exportDivergencesCSV;
     document.getElementById('btnExportRelatorioPDF').onclick = openPrintReport;
+    document.getElementById('btnExportBackup').onclick = exportBackupJSON;
   }
 
   // Relatório detalhado (impressão/PDF) — reaproveita o mesmo filtro de
@@ -5416,6 +5421,40 @@ function appMain(){
   }
   function exportDivergencesCSV(){ downloadCSV('divergencias.csv', toDivergencesCSV()); }
 
+  // Backup manual sob demanda: baixa o estado inteiro (todas as lojas, todo
+  // o histórico) como um arquivo JSON, na hora, sem depender da coleção
+  // "backups" do Firestore nem de internet além do que a página já usou pra
+  // carregar. Serve de reforço além do backup automático diário (ver
+  // maybeWriteDailyBackup) — por exemplo, antes de uma mudança arriscada
+  // (trocar senha de todo mundo, editar regras do Firestore), é razoável
+  // baixar uma cópia na mão sem esperar a virada do dia.
+  function downloadJSON(filename, obj){
+    var json = JSON.stringify(obj, null, 2);
+    if (downloadsNs){
+      downloadsNs.save({filename:filename, data: json}).catch(function(err){
+        showBanner('Não foi possível baixar o arquivo agora.');
+      });
+      return;
+    }
+    try{
+      var blob = new Blob([json], {type: 'application/json;charset=utf-8;'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    }catch(err){
+      showBanner('Não foi possível baixar o arquivo agora.');
+    }
+  }
+  function exportBackupJSON(){
+    var nomeArquivo = 'backup-fechamento-caixa-' + new Date().toISOString().slice(0,10) + '.json';
+    downloadJSON(nomeArquivo, { criadoEm: new Date().toISOString(), estado: state });
+  }
+
   function readEmbeddedState(){
     try{
       var el = document.getElementById('state-data');
@@ -5488,6 +5527,35 @@ function appMain(){
         if (first){ first = false; resolve(null); }
       });
     });
+  }
+
+  // Backup diário automático: uma cópia imutável do estado inteiro, num
+  // documento por dia (backups/{AAAA-MM-DD}). Roda no máximo uma vez por
+  // dia — se o documento de hoje já existe, não faz nada (nunca
+  // sobrescreve). O motivo de existir: hoje TUDO — as 9 lojas, todo o
+  // histórico de fechamentos — mora num único documento do Firestore, sem
+  // nenhuma cópia de segurança. Um bug, uma gravação corrompida ou um erro
+  // humano nesse documento não tinha nenhum plano B. As regras do Firestore
+  // proíbem update/delete nessa coleção pra qualquer sessão, sempre (ver
+  // firestore.rules) — então mesmo que o documento principal seja apagado
+  // ou corrompido, os snapshots diários já criados continuam intactos;
+  // nem um cliente comprometido com acesso de escrita total ao documento
+  // principal consegue apagar um backup depois que ele existe. Roda em
+  // segundo plano, sem nunca atrasar nem travar o carregamento do app —
+  // falha (sem internet, regras ainda não publicadas etc.) é silenciosa,
+  // do mesmo jeito que outras chamadas best-effort deste arquivo (ver
+  // fetchClientIpBestEffort). Complementa, não substitui, o botão "Baixar
+  // backup completo" da aba Exportação (esse é manual e sob demanda; este
+  // é automático e roda sozinho todo dia).
+  async function maybeWriteDailyBackup(){
+    if (!db) return;
+    try{
+      var hoje = new Date().toISOString().slice(0,10);
+      var ref = db.collection('backups').doc(hoje);
+      var snap = await ref.get();
+      if (snap.exists) return;
+      await ref.set({ criadoEm: new Date().toISOString(), dataBackup: hoje, estado: state });
+    }catch(e){ /* best-effort: sem internet, sem permissão, etc. */ }
   }
 
   // `updater` is a function(currentState) -> newState. Rodar a gravação
@@ -6012,6 +6080,7 @@ function appMain(){
     applyStageVisibility();
     render();
     if (stage === 'form') resetForm();
+    maybeWriteDailyBackup();
   }
 
   initTheme();
