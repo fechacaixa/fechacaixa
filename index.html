@@ -6076,9 +6076,27 @@ function appMain(){
       });
     }
 
-    stage = determineStage();
+    // Primeira configuração: se depois de todas as migrações ainda não
+    // existir nenhum usuário (instalação zerada para entrega ao cliente),
+    // pula o login e entra direto na tela de administração — não há nada a
+    // proteger num banco vazio, e o cliente precisa de acesso pra cadastrar
+    // o primeiro admin, lojas e senhas. Na próxima vez que alguém abrir o
+    // app, os usuários já existem e o login funciona normalmente.
+    var primeiraConfiguracao = !state.usuarios || !state.usuarios.length;
+    if (primeiraConfiguracao){
+      managerUnlocked = true;
+      canManageAccounts = true;
+      readOnlyMode = false;
+      authedUser = {id:'setup', nome:'Configuração inicial', login:'setup', perfil:'admin', ativo:true, lojasPermitidas:[]};
+      stage = 'manager';
+    } else {
+      stage = determineStage();
+    }
     applyStageVisibility();
     render();
+    if (primeiraConfiguracao){
+      showBanner('Bem-vindo! Cadastre o primeiro administrador em Usuários, e as lojas em Lojas.');
+    }
     if (stage === 'form') resetForm();
     maybeWriteDailyBackup();
   }
