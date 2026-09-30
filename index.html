@@ -5930,12 +5930,19 @@ function appMain(){
       });
     }
 
+    // Flag de primeira configuração: banco totalmente zerado (sem usuários
+    // E sem lojas) indica instalação limpa para entrega ao cliente. Captura
+    // ANTES das migrações, que podem criar um admin automático.
+    var primeiraConfiguracao = (!state.usuarios || !state.usuarios.length) && (!state.lojas || !state.lojas.length);
+
     // Migração única: cria um usuário individual por loja (login = nome da
     // loja sem acentos/espaços, senha = a senha da loja que já existia) e um
     // usuário administrador (login "admin", senha = a senha administrativa
     // que já existia) — só roda se ainda não existir nenhum usuário
     // cadastrado, então nunca sobrescreve contas já criadas.
-    if (!state.usuarios || !state.usuarios.length){
+    // Pula quando é primeira configuração (banco zerado) — o admin será
+    // cadastrado manualmente pelo cliente.
+    if (!primeiraConfiguracao && (!state.usuarios || !state.usuarios.length)){
       var novosUsuarios = [];
       for (var i = 0; i < state.lojas.length; i++){
         var l = state.lojas[i];
@@ -6076,13 +6083,10 @@ function appMain(){
       });
     }
 
-    // Primeira configuração: se depois de todas as migrações ainda não
-    // existir nenhum usuário (instalação zerada para entrega ao cliente),
-    // pula o login e entra direto na tela de administração — não há nada a
-    // proteger num banco vazio, e o cliente precisa de acesso pra cadastrar
-    // o primeiro admin, lojas e senhas. Na próxima vez que alguém abrir o
-    // app, os usuários já existem e o login funciona normalmente.
-    var primeiraConfiguracao = !state.usuarios || !state.usuarios.length;
+    // Primeira configuração: banco zerado para entrega ao cliente — pula
+    // o login e entra direto na tela de administração. O flag foi capturado
+    // antes das migrações (acima). Na próxima abertura, com usuários já
+    // cadastrados, o login funciona normalmente.
     if (primeiraConfiguracao){
       managerUnlocked = true;
       canManageAccounts = true;
